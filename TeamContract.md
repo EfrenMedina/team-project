@@ -63,3 +63,5 @@ Team Member Signatures:
 Efren Medina Arias
 
 Andrei Mazin
+
+Ian Shi
