@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <title>07 Portfolio</title>
+  <desc>Wireframe 07 (US-07): total value, summary cards, holdings with signed profit/loss, allocation.</desc>
+  <defs>
+    <style>
+    .h1 { font-size: 28px; font-weight: 700; fill: #ECEEF1; }
+    .hero { font-size: 44px; font-weight: 700; fill: #ECEEF1; }
+    .h2 { font-size: 18px; font-weight: 600; fill: #ECEEF1; }
+    .b { font-size: 14px; fill: #ECEEF1; }
+    .bb { font-size: 14px; font-weight: 600; fill: #ECEEF1; }
+    .s { font-size: 12px; fill: #9AA1AB; }
+    .sb { font-size: 12px; font-weight: 600; fill: #9AA1AB; }
+    .m { font-size: 11px; fill: #646B75; }
+    .btn { font-size: 14px; font-weight: 700; fill: #0E1013; }
+    .pill { font-size: 13px; font-weight: 700; fill: #0E1013; }
+    .up { fill: #3DD68C; }
+    .dn { fill: #FF6A4D; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9AA1AB"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="800" fill="#0E1013"/>
+
+  <!-- Left sidebar: navigation (same on every screen after login) -->
+  <rect x="0" y="0" width="216" height="800" fill="#16191E"/>
+  <rect x="24" y="28" width="28" height="28" rx="7" fill="#1F2329"/>
+  <path d="M30 48 L36 41 L41 45 L47 36" fill="none" stroke="#3DD68C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="62" y="47" class="bb">Paper Trading App</text>
+  <text x="32" y="116" class="b">Dashboard</text>
+  <text x="32" y="160" class="b">Search</text>
+  <rect x="16" y="179" width="184" height="38" rx="8" fill="#1F2329"/>
+  <text x="32" y="204" class="bb">Portfolio</text>
+  <text x="32" y="248" class="b">Orders</text>
+  <text x="32" y="292" class="b">History</text>
+  <text x="32" y="336" class="b">Statements</text>
+  <text x="32" y="380" class="b">Account</text>
+  <circle cx="40" cy="712" r="16" fill="#1F2329"/>
+  <text x="40" y="716" text-anchor="middle" class="sb">JL</text>
+  <text x="66" y="708" class="bb">jordan.lee</text>
+  <text x="66" y="726" class="s">Log out</text>
+  <text x="24" y="776" class="m">Wireframe 07 · US-07</text>
+  <text x="256" y="64" class="s">Total value</text>
+  <text x="256" y="114" class="hero">$10,190.45</text>
+  <text x="256" y="146" class="b" xml:space="preserve" style="white-space:pre"><tspan class="bb up">+$80.83 (+0.80%)</tspan><tspan class="s"> Today</tspan><tspan class="s">     </tspan><tspan class="bb up">+$190.45 (+1.90%)</tspan><tspan class="s"> All time</tspan></text>
+  <rect x="256" y="176" width="234" height="96" rx="12" fill="#16191E"/>
+  <text x="276" y="206" class="s">Stocks</text>
+  <text x="276" y="234" class="h2">$9,248.70</text>
+  <text x="276" y="254" class="s">4 holdings</text>
+  <rect x="506" y="176" width="234" height="96" rx="12" fill="#16191E"/>
+  <text x="526" y="206" class="s">Cash</text>
+  <text x="526" y="234" class="h2">$941.75</text>
+  <text x="526" y="254" class="s">$270.00 held for orders</text>
+  <rect x="756" y="176" width="234" height="96" rx="12" fill="#16191E"/>
+  <text x="776" y="206" class="s">Unrealized P/L</text>
+  <text x="776" y="234" class="h2 up">+$99.50</text>
+  <text x="776" y="254" class="s up">+1.09%</text>
+  <rect x="1006" y="176" width="234" height="96" rx="12" fill="#16191E"/>
+  <text x="1026" y="206" class="s">Realized P/L</text>
+  <text x="1026" y="234" class="h2 up">+$90.95</text>
+  <text x="1026" y="254" class="s">See Realized gains ›</text>
+
+  <!-- Table (JTable): numbers right-aligned -->
+  <text x="256" y="316" class="sb">Symbol</text>
+  <text x="450" y="316" text-anchor="end" class="sb">Shares</text>
+  <text x="570" y="316" text-anchor="end" class="sb">Avg cost</text>
+  <text x="690" y="316" text-anchor="end" class="sb">Price</text>
+  <text x="840" y="316" text-anchor="end" class="sb">Market value</text>
+  <text x="980" y="316" text-anchor="end" class="sb">Today</text>
+  <text x="1110" y="316" text-anchor="end" class="sb">Total P/L</text>
+  <text x="1240" y="316" text-anchor="end" class="sb">Return</text>
+  <line x1="256" y1="328" x2="1240" y2="328" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="360.0" class="bb">AAPL</text>
+  <text x="450" y="360.0" text-anchor="end" class="b">10</text>
+  <text x="570" y="360.0" text-anchor="end" class="b">$227.80</text>
+  <text x="690" y="360.0" text-anchor="end" class="b">$232.14</text>
+  <text x="840" y="360.0" text-anchor="end" class="b">$2,321.40</text>
+  <text x="980" y="360.0" text-anchor="end" class="b up">+$25.70</text>
+  <text x="1110" y="360.0" text-anchor="end" class="b up">+$43.40</text>
+  <text x="1240" y="360.0" text-anchor="end" class="b up">+1.91%</text>
+  <line x1="256" y1="382" x2="1240" y2="382" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="414.0" class="bb">MSFT</text>
+  <text x="450" y="414.0" text-anchor="end" class="b">5</text>
+  <text x="570" y="414.0" text-anchor="end" class="b">$412.00</text>
+  <text x="690" y="414.0" text-anchor="end" class="b">$428.50</text>
+  <text x="840" y="414.0" text-anchor="end" class="b">$2,142.50</text>
+  <text x="980" y="414.0" text-anchor="end" class="b up">+$17.85</text>
+  <text x="1110" y="414.0" text-anchor="end" class="b up">+$82.50</text>
+  <text x="1240" y="414.0" text-anchor="end" class="b up">+4.00%</text>
+  <line x1="256" y1="436" x2="1240" y2="436" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="468.0" class="bb">NVDA</text>
+  <text x="450" y="468.0" text-anchor="end" class="b">20</text>
+  <text x="570" y="468.0" text-anchor="end" class="b">$133.00</text>
+  <text x="690" y="468.0" text-anchor="end" class="b">$138.72</text>
+  <text x="840" y="468.0" text-anchor="end" class="b">$2,774.40</text>
+  <text x="980" y="468.0" text-anchor="end" class="b up">+$65.20</text>
+  <text x="1110" y="468.0" text-anchor="end" class="b up">+$114.40</text>
+  <text x="1240" y="468.0" text-anchor="end" class="b up">+4.30%</text>
+  <line x1="256" y1="490" x2="1240" y2="490" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="522.0" class="bb">TSLA</text>
+  <text x="450" y="522.0" text-anchor="end" class="b">8</text>
+  <text x="570" y="522.0" text-anchor="end" class="b">$268.90</text>
+  <text x="690" y="522.0" text-anchor="end" class="b">$251.30</text>
+  <text x="840" y="522.0" text-anchor="end" class="b">$2,010.40</text>
+  <text x="980" y="522.0" text-anchor="end" class="b dn">−$27.92</text>
+  <text x="1110" y="522.0" text-anchor="end" class="b dn">−$140.80</text>
+  <text x="1240" y="522.0" text-anchor="end" class="b dn">−6.55%</text>
+  <line x1="256" y1="544" x2="1240" y2="544" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="576.0" class="bb">Total</text>
+  <text x="450" y="576.0" text-anchor="end" class="bb"></text>
+  <text x="570" y="576.0" text-anchor="end" class="bb"></text>
+  <text x="690" y="576.0" text-anchor="end" class="bb"></text>
+  <text x="840" y="576.0" text-anchor="end" class="bb">$9,248.70</text>
+  <text x="980" y="576.0" text-anchor="end" class="bb up">+$80.83</text>
+  <text x="1110" y="576.0" text-anchor="end" class="bb up">+$99.50</text>
+  <text x="1240" y="576.0" text-anchor="end" class="bb up">+1.09%</text>
+
+  <!-- Allocation bar (greyscale, not a gain/loss signal) -->
+  <text x="256" y="660" class="bb">Allocation</text>
+  <rect x="256" y="676" width="264.9" height="12" rx="3" fill="#C9CDD3"/>
+  <text x="256" y="712" class="s">NVDA 27.2%</text>
+  <rect x="523.9" y="676" width="221.2" height="12" rx="3" fill="#9AA1AB"/>
+  <text x="523.9" y="712" class="s">AAPL 22.8%</text>
+  <rect x="748.1" y="676" width="203.9" height="12" rx="3" fill="#737A84"/>
+  <text x="748.1" y="712" class="s">MSFT 21.0%</text>
+  <rect x="954.9" y="676" width="191.1" height="12" rx="3" fill="#535963"/>
+  <text x="954.9" y="712" class="s">TSLA 19.7%</text>
+  <rect x="1149.1" y="676" width="87.9" height="12" rx="3" fill="#363B43"/>
+  <text x="1149.1" y="712" class="s">Cash 9.2%</text>
+  <text x="256" y="760" class="m">Click a holding to open its Stock detail.</text>
+</svg>

@@ -75,6 +75,12 @@ Offline demo mode: _to be added (SCRUM-43)._
 - Test both the success path and each failure path of every interactor.
 - Tests must not call the real stock APIs; use the fake gateway and the recorded JSON in `src/test/resources/api/`.
 
+## Wireframes
+
+Every screen is sketched in [`docs/wireframes/`](docs/wireframes/), with a table of screens, user stories and owners. Start with the navigation map:
+
+![Navigation map](docs/wireframes/00-navigation-map.svg)
+
 ## Screenshots
 
 _Coming once the first screens are built._
