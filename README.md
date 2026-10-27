@@ -71,7 +71,8 @@ Offline demo mode: _to be added (SCRUM-43)._
   - an **in-memory DAO** instead of SQLite, so tests are fast and need no files;
   - a **fake presenter** that records what the interactor sent, so we assert on output data, not on the UI;
   - a **fixed `Clock`** passed into the interactor, so time-based logic gives the same result every run.
-- Name tests after behaviour: `action_condition_expectedResult`, e.g. `buyShares_insufficientCash_presentsError`.
+- Model actions as types (records and enums, e.g. `Side.BUY`, `OrderType.LIMIT`), never as strings that need parsing.
+- Name tests after behaviour: `action_condition_expectedResult`, e.g. `placeOrder_zeroQuantity_presentsErrorAndSavesNothing`.
 - Test both the success path and each failure path of every interactor.
 - Tests must not call the real stock APIs; use the fake gateway and the recorded JSON in `src/test/resources/api/`.
 
