@@ -4,10 +4,8 @@ target/
 !**/src/test/**/target/
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+# Each laptop has its own IntelliJ settings; Maven (pom.xml) is the source of truth.
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -36,3 +34,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### Project ###
+# Local runtime data and the SQLite database
+data/
+*.db
+# API keys live here and must never be committed
+config.properties
