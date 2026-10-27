@@ -64,6 +64,12 @@ Offline demo mode: _to be added (SCRUM-43)._
 - Branch names start with the Jira key, e.g. `SCRUM-19-ledger-entities`, so they link to the ticket.
 - Money is stored as integer cents; never use `double` or `REAL` for money.
 
+## Wireframes
+
+Every screen is sketched in [`docs/wireframes/`](docs/wireframes/), with a table of screens, user stories and owners. Start with the navigation map:
+
+![Navigation map](docs/wireframes/00-navigation-map.svg)
+
 ## Screenshots
 
 _Coming once the first screens are built._

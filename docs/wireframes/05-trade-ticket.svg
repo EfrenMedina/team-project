@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <title>05 Trade ticket</title>
+  <desc>Wireframe 05 (US-05, US-06, US-10): buy market, sell market, buy limit, and the review/confirm step.</desc>
+  <defs>
+    <style>
+    .h1 { font-size: 28px; font-weight: 700; fill: #ECEEF1; }
+    .hero { font-size: 44px; font-weight: 700; fill: #ECEEF1; }
+    .h2 { font-size: 18px; font-weight: 600; fill: #ECEEF1; }
+    .b { font-size: 14px; fill: #ECEEF1; }
+    .bb { font-size: 14px; font-weight: 600; fill: #ECEEF1; }
+    .s { font-size: 12px; fill: #9AA1AB; }
+    .sb { font-size: 12px; font-weight: 600; fill: #9AA1AB; }
+    .m { font-size: 11px; fill: #646B75; }
+    .btn { font-size: 14px; font-weight: 700; fill: #0E1013; }
+    .pill { font-size: 13px; font-weight: 700; fill: #0E1013; }
+    .up { fill: #3DD68C; }
+    .dn { fill: #FF6A4D; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9AA1AB"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="800" fill="#0E1013"/>
+
+  <!-- Left sidebar: navigation (same on every screen after login) -->
+  <rect x="0" y="0" width="216" height="800" fill="#16191E"/>
+  <rect x="24" y="28" width="28" height="28" rx="7" fill="#1F2329"/>
+  <path d="M30 48 L36 41 L41 45 L47 36" fill="none" stroke="#3DD68C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="62" y="47" class="bb">Paper Trading App</text>
+  <text x="32" y="116" class="b">Dashboard</text>
+  <rect x="16" y="135" width="184" height="38" rx="8" fill="#1F2329"/>
+  <text x="32" y="160" class="bb">Search</text>
+  <text x="32" y="204" class="b">Portfolio</text>
+  <text x="32" y="248" class="b">Orders</text>
+  <text x="32" y="292" class="b">History</text>
+  <text x="32" y="336" class="b">Statements</text>
+  <text x="32" y="380" class="b">Account</text>
+  <circle cx="40" cy="712" r="16" fill="#1F2329"/>
+  <text x="40" y="716" text-anchor="middle" class="sb">JL</text>
+  <text x="66" y="708" class="bb">jordan.lee</text>
+  <text x="66" y="726" class="s">Log out</text>
+  <text x="24" y="776" class="m">Wireframe 05 · US-05, US-06, US-10</text>
+  <text x="252" y="64" class="h1">Trade ticket</text>
+  <text x="252" y="92" class="s">Opens in the right panel of Stock detail. Four states side by side.</text>
+
+  <!-- Ticket state 1 · BUY, MARKET -->
+  <text x="252" y="132" class="m">1 · BUY, MARKET</text>
+  <rect x="252" y="148" width="236" height="540" rx="12" fill="#16191E"/>
+  <text x="272" y="188" class="h2">Buy AAPL</text>
+  <text x="272" y="210" class="b" xml:space="preserve" style="white-space:pre"><tspan class="s">$232.14  </tspan><tspan class="s up">+1.12%</tspan></text>
+
+  <!-- Buy / Sell toggle (JToggleButton pair) -->
+  <rect x="272" y="228" width="196" height="36" rx="8" fill="#1A1D22"/>
+  <rect x="274" y="230" width="96" height="32" rx="7" fill="#3DD68C"/>
+  <text x="322" y="251" text-anchor="middle" class="btn">Buy</text>
+  <text x="418" y="251" text-anchor="middle" class="s">Sell</text>
+  <text x="272" y="306" class="s">Order type</text>
+  <rect x="368" y="286" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="380" y="307.0" class="b">Market</text>
+  <path d="M446 300.0 L451 305.0 L456 300.0" fill="none" stroke="#9AA1AB" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="272" y="354" class="s">Shares</text>
+  <rect x="368" y="334" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="456" y="355.0" text-anchor="end" class="b">2</text>
+  <line x1="272" y1="402" x2="468" y2="402" stroke="#262A31" stroke-width="1"/>
+  <text x="272" y="434" class="s">Market price</text>
+  <text x="468" y="434" text-anchor="end" class="b">$232.14</text>
+  <text x="272" y="464" class="bb">Estimated cost</text>
+  <text x="468" y="464" text-anchor="end" class="bb">$464.28</text>
+  <rect x="272" y="588" width="196" height="44" rx="22" fill="#3DD68C"/>
+  <text x="370.0" y="615.0" text-anchor="middle" class="btn">Review order</text>
+  <text x="370" y="660" text-anchor="middle" class="s">$671.75 buying power available</text>
+
+  <!-- Ticket state 2 · SELL, MARKET -->
+  <text x="504" y="132" class="m">2 · SELL, MARKET</text>
+  <rect x="504" y="148" width="236" height="540" rx="12" fill="#16191E"/>
+  <text x="524" y="188" class="h2">Sell TSLA</text>
+  <text x="524" y="210" class="b" xml:space="preserve" style="white-space:pre"><tspan class="s">$251.30  </tspan><tspan class="s dn">−1.37%</tspan></text>
+
+  <!-- Buy / Sell toggle (JToggleButton pair) -->
+  <rect x="524" y="228" width="196" height="36" rx="8" fill="#1A1D22"/>
+  <rect x="622" y="230" width="96" height="32" rx="7" fill="#FF6A4D"/>
+  <text x="574" y="251" text-anchor="middle" class="s">Buy</text>
+  <text x="670" y="251" text-anchor="middle" class="btn">Sell</text>
+  <text x="524" y="306" class="s">Order type</text>
+  <rect x="620" y="286" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="632" y="307.0" class="b">Market</text>
+  <path d="M698 300.0 L703 305.0 L708 300.0" fill="none" stroke="#9AA1AB" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="524" y="354" class="s">Shares</text>
+  <rect x="620" y="334" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="708" y="355.0" text-anchor="end" class="b">3</text>
+  <line x1="524" y1="402" x2="720" y2="402" stroke="#262A31" stroke-width="1"/>
+  <text x="524" y="434" class="s">Market price</text>
+  <text x="720" y="434" text-anchor="end" class="b">$251.30</text>
+  <text x="524" y="464" class="bb">Estimated credit</text>
+  <text x="720" y="464" text-anchor="end" class="bb">$753.90</text>
+  <rect x="524" y="588" width="196" height="44" rx="22" fill="#FF6A4D"/>
+  <text x="622.0" y="615.0" text-anchor="middle" class="btn">Review order</text>
+  <text x="622" y="660" text-anchor="middle" class="s">You own 8 shares of TSLA</text>
+
+  <!-- Ticket state 3 · BUY, LIMIT -->
+  <text x="756" y="132" class="m">3 · BUY, LIMIT</text>
+  <rect x="756" y="148" width="236" height="540" rx="12" fill="#16191E"/>
+  <text x="776" y="188" class="h2">Buy GOOGL</text>
+  <text x="776" y="210" class="b" xml:space="preserve" style="white-space:pre"><tspan class="s">$171.25  </tspan><tspan class="s up">+0.42%</tspan></text>
+
+  <!-- Buy / Sell toggle (JToggleButton pair) -->
+  <rect x="776" y="228" width="196" height="36" rx="8" fill="#1A1D22"/>
+  <rect x="778" y="230" width="96" height="32" rx="7" fill="#3DD68C"/>
+  <text x="826" y="251" text-anchor="middle" class="btn">Buy</text>
+  <text x="922" y="251" text-anchor="middle" class="s">Sell</text>
+  <text x="776" y="306" class="s">Order type</text>
+  <rect x="872" y="286" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="884" y="307.0" class="b">Limit</text>
+  <path d="M950 300.0 L955 305.0 L960 300.0" fill="none" stroke="#9AA1AB" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="776" y="354" class="s">Shares</text>
+  <rect x="872" y="334" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="960" y="355.0" text-anchor="end" class="b">1</text>
+  <text x="776" y="402" class="s">Limit price</text>
+  <rect x="872" y="382" width="100" height="32" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="960" y="403.0" text-anchor="end" class="b">$165.00</text>
+  <text x="776" y="438" class="m">Fills automatically when GOOGL</text>
+  <text x="776" y="453" class="m">trades at or below $165.00.</text>
+  <line x1="776" y1="482" x2="972" y2="482" stroke="#262A31" stroke-width="1"/>
+  <text x="776" y="514" class="s">Market price</text>
+  <text x="972" y="514" text-anchor="end" class="b">$171.25</text>
+  <text x="776" y="544" class="bb">Estimated cost</text>
+  <text x="972" y="544" text-anchor="end" class="bb">$165.00</text>
+  <rect x="776" y="588" width="196" height="44" rx="22" fill="#3DD68C"/>
+  <text x="874.0" y="615.0" text-anchor="middle" class="btn">Review order</text>
+  <text x="874" y="660" text-anchor="middle" class="s">$671.75 buying power available</text>
+
+  <!-- Ticket state 4: review and confirm -->
+  <text x="1008" y="132" class="m">4 · REVIEW AND CONFIRM</text>
+  <rect x="1008" y="148" width="236" height="540" rx="12" fill="#16191E"/>
+  <text x="1028" y="188" class="h2">Review order</text>
+  <text x="1028" y="216" class="s">Buy 2 shares of AAPL at the</text>
+  <text x="1028" y="233" class="s">market price.</text>
+  <text x="1028" y="278" class="s">Shares</text>
+  <text x="1224" y="278" text-anchor="end" class="bb">2</text>
+  <line x1="1028" y1="292" x2="1224" y2="292" stroke="#262A31" stroke-width="1"/>
+  <text x="1028" y="318" class="s">Est. price</text>
+  <text x="1224" y="318" text-anchor="end" class="bb">$232.14</text>
+  <line x1="1028" y1="332" x2="1224" y2="332" stroke="#262A31" stroke-width="1"/>
+  <text x="1028" y="358" class="s">Est. cost</text>
+  <text x="1224" y="358" text-anchor="end" class="bb">$464.28</text>
+  <line x1="1028" y1="372" x2="1224" y2="372" stroke="#262A31" stroke-width="1"/>
+  <text x="1028" y="398" class="s">Buying power after</text>
+  <text x="1224" y="398" text-anchor="end" class="bb">$207.47</text>
+  <line x1="1028" y1="412" x2="1224" y2="412" stroke="#262A31" stroke-width="1"/>
+  <text x="1028" y="468" class="m">The price may move a little</text>
+  <text x="1028" y="483" class="m">before the order fills.</text>
+  <text x="1028" y="518" class="m">Confirm disables after one</text>
+  <text x="1028" y="533" class="m">click, so the order is never</text>
+  <text x="1028" y="548" class="m">sent twice.</text>
+  <rect x="1028" y="588" width="196" height="44" rx="22" fill="#3DD68C"/>
+  <text x="1126.0" y="615.0" text-anchor="middle" class="btn">Confirm buy</text>
+  <text x="1126" y="660" text-anchor="middle" class="sb">Edit order</text>
+
+  <!-- Result after confirming -->
+  <text x="1008" y="712" class="m">AFTER CONFIRMING</text>
+  <rect x="1008" y="722" width="236" height="44" rx="10" fill="#1F2329"/>
+  <text x="1024" y="749" class="b" xml:space="preserve" style="white-space:pre"><tspan class="bb up">✓ </tspan><tspan class="b">Bought 2 AAPL at $232.14</tspan></text>
+</svg>
