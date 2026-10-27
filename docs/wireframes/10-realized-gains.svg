@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <title>10 Realized gains</title>
+  <desc>Wireframe 10 (US-12): gains and losses from completed sales, with a per-symbol bar chart.</desc>
+  <defs>
+    <style>
+    .h1 { font-size: 28px; font-weight: 700; fill: #ECEEF1; }
+    .hero { font-size: 44px; font-weight: 700; fill: #ECEEF1; }
+    .h2 { font-size: 18px; font-weight: 600; fill: #ECEEF1; }
+    .b { font-size: 14px; fill: #ECEEF1; }
+    .bb { font-size: 14px; font-weight: 600; fill: #ECEEF1; }
+    .s { font-size: 12px; fill: #9AA1AB; }
+    .sb { font-size: 12px; font-weight: 600; fill: #9AA1AB; }
+    .m { font-size: 11px; fill: #646B75; }
+    .btn { font-size: 14px; font-weight: 700; fill: #0E1013; }
+    .pill { font-size: 13px; font-weight: 700; fill: #0E1013; }
+    .up { fill: #3DD68C; }
+    .dn { fill: #FF6A4D; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9AA1AB"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="800" fill="#0E1013"/>
+
+  <!-- Left sidebar: navigation (same on every screen after login) -->
+  <rect x="0" y="0" width="216" height="800" fill="#16191E"/>
+  <rect x="24" y="28" width="28" height="28" rx="7" fill="#1F2329"/>
+  <path d="M30 48 L36 41 L41 45 L47 36" fill="none" stroke="#3DD68C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="62" y="47" class="bb">Paper Trading App</text>
+  <text x="32" y="116" class="b">Dashboard</text>
+  <text x="32" y="160" class="b">Search</text>
+  <text x="32" y="204" class="b">Portfolio</text>
+  <text x="32" y="248" class="b">Orders</text>
+  <text x="32" y="292" class="b">History</text>
+  <rect x="16" y="311" width="184" height="38" rx="8" fill="#1F2329"/>
+  <text x="32" y="336" class="bb">Statements</text>
+  <text x="32" y="380" class="b">Account</text>
+  <circle cx="40" cy="712" r="16" fill="#1F2329"/>
+  <text x="40" y="716" text-anchor="middle" class="sb">JL</text>
+  <text x="66" y="708" class="bb">jordan.lee</text>
+  <text x="66" y="726" class="s">Log out</text>
+  <text x="24" y="776" class="m">Wireframe 10 · US-12</text>
+  <text x="256" y="76" class="h1">Statements</text>
+  <text x="256" y="120" class="b">Account statement</text>
+  <text x="424" y="120" class="bb">Realized gains</text>
+  <rect x="424" y="130" width="112" height="2" rx="1" fill="#ECEEF1"/>
+  <rect x="1080" y="96" width="160" height="36" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="1092" y="119.0" class="b">All time</text>
+  <path d="M1218 112.0 L1223 117.0 L1228 112.0" fill="none" stroke="#9AA1AB" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="256" y="156" width="317.3333333333333" height="92" rx="12" fill="#16191E"/>
+  <text x="276" y="186" class="s">Net realized</text>
+  <text x="276" y="214" class="h2 up">+$90.95</text>
+  <text x="276" y="234" class="s">4 sales</text>
+  <rect x="589.3333333333333" y="156" width="317.3333333333333" height="92" rx="12" fill="#16191E"/>
+  <text x="609.3333333333333" y="186" class="s">Gains</text>
+  <text x="609.3333333333333" y="214" class="h2 up">+$118.55</text>
+  <text x="609.3333333333333" y="234" class="s">3 sales</text>
+  <rect x="922.6666666666666" y="156" width="317.3333333333333" height="92" rx="12" fill="#16191E"/>
+  <text x="942.6666666666666" y="186" class="s">Losses</text>
+  <text x="942.6666666666666" y="214" class="h2 dn">−$27.60</text>
+  <text x="942.6666666666666" y="234" class="s">1 sale</text>
+
+  <!-- Table (JTable): numbers right-aligned -->
+  <text x="256" y="290" class="sb">Sell date</text>
+  <text x="380" y="290" class="sb">Symbol</text>
+  <text x="560" y="290" text-anchor="end" class="sb">Shares</text>
+  <text x="760" y="290" text-anchor="end" class="sb">Proceeds</text>
+  <text x="960" y="290" text-anchor="end" class="sb">Cost basis</text>
+  <text x="1110" y="290" text-anchor="end" class="sb">Realized gain</text>
+  <text x="1240" y="290" text-anchor="end" class="sb">Return</text>
+  <line x1="256" y1="302" x2="1240" y2="302" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="329.0" class="b">Oct 24</text>
+  <text x="380" y="329.0" class="bb">TSLA</text>
+  <text x="560" y="329.0" text-anchor="end" class="b">2</text>
+  <text x="760" y="329.0" text-anchor="end" class="b">$510.20</text>
+  <text x="960" y="329.0" text-anchor="end" class="b">$537.80</text>
+  <text x="1110" y="329.0" text-anchor="end" class="b dn">−$27.60</text>
+  <text x="1240" y="329.0" text-anchor="end" class="b dn">−5.13%</text>
+  <line x1="256" y1="346" x2="1240" y2="346" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="373.0" class="b">Oct 20</text>
+  <text x="380" y="373.0" class="bb">MSFT</text>
+  <text x="560" y="373.0" text-anchor="end" class="b">3</text>
+  <text x="760" y="373.0" text-anchor="end" class="b">$1,260.45</text>
+  <text x="960" y="373.0" text-anchor="end" class="b">$1,236.00</text>
+  <text x="1110" y="373.0" text-anchor="end" class="b up">+$24.45</text>
+  <text x="1240" y="373.0" text-anchor="end" class="b up">+1.98%</text>
+  <line x1="256" y1="390" x2="1240" y2="390" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="417.0" class="b">Sep 18</text>
+  <text x="380" y="417.0" class="bb">AMZN</text>
+  <text x="560" y="417.0" text-anchor="end" class="b">5</text>
+  <text x="760" y="417.0" text-anchor="end" class="b">$920.50</text>
+  <text x="960" y="417.0" text-anchor="end" class="b">$858.20</text>
+  <text x="1110" y="417.0" text-anchor="end" class="b up">+$62.30</text>
+  <text x="1240" y="417.0" text-anchor="end" class="b up">+7.26%</text>
+  <line x1="256" y1="434" x2="1240" y2="434" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="461.0" class="b">Sep 11</text>
+  <text x="380" y="461.0" class="bb">GOOGL</text>
+  <text x="560" y="461.0" text-anchor="end" class="b">4</text>
+  <text x="760" y="461.0" text-anchor="end" class="b">$649.80</text>
+  <text x="960" y="461.0" text-anchor="end" class="b">$618.00</text>
+  <text x="1110" y="461.0" text-anchor="end" class="b up">+$31.80</text>
+  <text x="1240" y="461.0" text-anchor="end" class="b up">+5.15%</text>
+  <line x1="256" y1="478" x2="1240" y2="478" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="505.0" class="bb">Total</text>
+  <text x="380" y="505.0" class="bb"></text>
+  <text x="560" y="505.0" text-anchor="end" class="bb"></text>
+  <text x="760" y="505.0" text-anchor="end" class="bb">$3,340.95</text>
+  <text x="960" y="505.0" text-anchor="end" class="bb">$3,250.00</text>
+  <text x="1110" y="505.0" text-anchor="end" class="bb up">+$90.95</text>
+  <text x="1240" y="505.0" text-anchor="end" class="bb up">+2.80%</text>
+
+  <!-- Realized gain by symbol (horizontal bar chart, JFreeChart) -->
+  <text x="256" y="600" class="bb">Realized gain by symbol</text>
+  <line x1="600" y1="614" x2="600" y2="754" stroke="#3A4049" stroke-width="1"/>
+  <text x="256" y="636" class="bb">AMZN</text>
+  <rect x="600" y="622" width="249.2" height="20" rx="3" fill="#3DD68C"/>
+  <text x="859.2" y="637" class="s up">+$62.30</text>
+  <text x="256" y="670" class="bb">GOOGL</text>
+  <rect x="600" y="656" width="127.2" height="20" rx="3" fill="#3DD68C"/>
+  <text x="737.2" y="671" class="s up">+$31.80</text>
+  <text x="256" y="704" class="bb">MSFT</text>
+  <rect x="600" y="690" width="97.8" height="20" rx="3" fill="#3DD68C"/>
+  <text x="707.8" y="705" class="s up">+$24.45</text>
+  <text x="256" y="738" class="bb">TSLA</text>
+  <rect x="489.6" y="724" width="110.4" height="20" rx="3" fill="#FF6A4D"/>
+  <text x="479.6" y="739" text-anchor="end" class="s dn">−$27.60</text>
+  <text x="1240" y="760" text-anchor="end" class="m">Cost basis uses the average cost per share.</text>
+</svg>

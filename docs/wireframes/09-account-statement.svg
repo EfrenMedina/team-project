@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" font-family="Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif">
+  <title>09 Account statement</title>
+  <desc>Wireframe 09 (US-11): cash statement for a period with opening/closing balance and every ledger entry.</desc>
+  <defs>
+    <style>
+    .h1 { font-size: 28px; font-weight: 700; fill: #ECEEF1; }
+    .hero { font-size: 44px; font-weight: 700; fill: #ECEEF1; }
+    .h2 { font-size: 18px; font-weight: 600; fill: #ECEEF1; }
+    .b { font-size: 14px; fill: #ECEEF1; }
+    .bb { font-size: 14px; font-weight: 600; fill: #ECEEF1; }
+    .s { font-size: 12px; fill: #9AA1AB; }
+    .sb { font-size: 12px; font-weight: 600; fill: #9AA1AB; }
+    .m { font-size: 11px; fill: #646B75; }
+    .btn { font-size: 14px; font-weight: 700; fill: #0E1013; }
+    .pill { font-size: 13px; font-weight: 700; fill: #0E1013; }
+    .up { fill: #3DD68C; }
+    .dn { fill: #FF6A4D; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#9AA1AB"/>
+    </marker>
+  </defs>
+  <rect width="1280" height="800" fill="#0E1013"/>
+
+  <!-- Left sidebar: navigation (same on every screen after login) -->
+  <rect x="0" y="0" width="216" height="800" fill="#16191E"/>
+  <rect x="24" y="28" width="28" height="28" rx="7" fill="#1F2329"/>
+  <path d="M30 48 L36 41 L41 45 L47 36" fill="none" stroke="#3DD68C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <text x="62" y="47" class="bb">Paper Trading App</text>
+  <text x="32" y="116" class="b">Dashboard</text>
+  <text x="32" y="160" class="b">Search</text>
+  <text x="32" y="204" class="b">Portfolio</text>
+  <text x="32" y="248" class="b">Orders</text>
+  <text x="32" y="292" class="b">History</text>
+  <rect x="16" y="311" width="184" height="38" rx="8" fill="#1F2329"/>
+  <text x="32" y="336" class="bb">Statements</text>
+  <text x="32" y="380" class="b">Account</text>
+  <circle cx="40" cy="712" r="16" fill="#1F2329"/>
+  <text x="40" y="716" text-anchor="middle" class="sb">JL</text>
+  <text x="66" y="708" class="bb">jordan.lee</text>
+  <text x="66" y="726" class="s">Log out</text>
+  <text x="24" y="776" class="m">Wireframe 09 · US-11</text>
+  <text x="256" y="76" class="h1">Statements</text>
+  <text x="256" y="120" class="bb">Account statement</text>
+  <rect x="256" y="130" width="136" height="2" rx="1" fill="#ECEEF1"/>
+  <text x="424" y="120" class="b">Realized gains</text>
+  <rect x="1020" y="96" width="220" height="36" rx="8" fill="#1A1D22" stroke="#3A4049" stroke-width="1"/>
+  <text x="1032" y="119.0" class="b">Oct 1 – Oct 26, 2026</text>
+  <path d="M1218 112.0 L1223 117.0 L1228 112.0" fill="none" stroke="#9AA1AB" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/>
+  <rect x="256" y="156" width="234" height="84" rx="12" fill="#16191E"/>
+  <text x="276" y="186" class="s">Opening balance</text>
+  <text x="276" y="214" class="h2">$10,094.10</text>
+  <rect x="506" y="156" width="234" height="84" rx="12" fill="#16191E"/>
+  <text x="526" y="186" class="s">Money in</text>
+  <text x="526" y="214" class="h2">+$1,770.65</text>
+  <rect x="756" y="156" width="234" height="84" rx="12" fill="#16191E"/>
+  <text x="776" y="186" class="s">Money out</text>
+  <text x="776" y="214" class="h2">−$10,923.00</text>
+  <rect x="1006" y="156" width="234" height="84" rx="12" fill="#16191E"/>
+  <text x="1026" y="186" class="s">Closing balance</text>
+  <text x="1026" y="214" class="h2">$941.75</text>
+
+  <!-- Table (JTable): numbers right-aligned -->
+  <text x="256" y="280" class="sb">Date</text>
+  <text x="380" y="280" class="sb">Description</text>
+  <text x="1080" y="280" text-anchor="end" class="sb">Amount</text>
+  <text x="1240" y="280" text-anchor="end" class="sb">Balance</text>
+  <line x1="256" y1="292" x2="1240" y2="292" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="317.0" class="b">Oct 1</text>
+  <text x="380" y="317.0" class="s">Opening balance</text>
+  <text x="1080" y="317.0" text-anchor="end" class="b"></text>
+  <text x="1240" y="317.0" text-anchor="end" class="b">$10,094.10</text>
+  <line x1="256" y1="332" x2="1240" y2="332" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="357.0" class="b">Oct 6</text>
+  <text x="380" y="357.0" class="b">Buy 6 AAPL @ $226.80</text>
+  <text x="1080" y="357.0" text-anchor="end" class="b">−$1,360.80</text>
+  <text x="1240" y="357.0" text-anchor="end" class="b">$8,733.30</text>
+  <line x1="256" y1="372" x2="1240" y2="372" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="397.0" class="b">Oct 8</text>
+  <text x="380" y="397.0" class="b">Buy 10 TSLA @ $268.90</text>
+  <text x="1080" y="397.0" text-anchor="end" class="b">−$2,689.00</text>
+  <text x="1240" y="397.0" text-anchor="end" class="b">$6,044.30</text>
+  <line x1="256" y1="412" x2="1240" y2="412" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="437.0" class="b">Oct 10</text>
+  <text x="380" y="437.0" class="b">Buy 8 MSFT @ $412.00</text>
+  <text x="1080" y="437.0" text-anchor="end" class="b">−$3,296.00</text>
+  <text x="1240" y="437.0" text-anchor="end" class="b">$2,748.30</text>
+  <line x1="256" y1="452" x2="1240" y2="452" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="477.0" class="b">Oct 15</text>
+  <text x="380" y="477.0" class="b">Buy 10 NVDA @ $131.40</text>
+  <text x="1080" y="477.0" text-anchor="end" class="b">−$1,314.00</text>
+  <text x="1240" y="477.0" text-anchor="end" class="b">$1,434.30</text>
+  <line x1="256" y1="492" x2="1240" y2="492" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="517.0" class="b">Oct 17</text>
+  <text x="380" y="517.0" class="b">Buy 4 AAPL @ $229.30</text>
+  <text x="1080" y="517.0" text-anchor="end" class="b">−$917.20</text>
+  <text x="1240" y="517.0" text-anchor="end" class="b">$517.10</text>
+  <line x1="256" y1="532" x2="1240" y2="532" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="557.0" class="b">Oct 20</text>
+  <text x="380" y="557.0" class="b">Sell 3 MSFT @ $420.15</text>
+  <text x="1080" y="557.0" text-anchor="end" class="b">+$1,260.45</text>
+  <text x="1240" y="557.0" text-anchor="end" class="b">$1,777.55</text>
+  <line x1="256" y1="572" x2="1240" y2="572" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="597.0" class="b">Oct 22</text>
+  <text x="380" y="597.0" class="b">Buy 10 NVDA @ $134.60</text>
+  <text x="1080" y="597.0" text-anchor="end" class="b">−$1,346.00</text>
+  <text x="1240" y="597.0" text-anchor="end" class="b">$431.55</text>
+  <line x1="256" y1="612" x2="1240" y2="612" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="637.0" class="b">Oct 24</text>
+  <text x="380" y="637.0" class="b">Sell 2 TSLA @ $255.10</text>
+  <text x="1080" y="637.0" text-anchor="end" class="b">+$510.20</text>
+  <text x="1240" y="637.0" text-anchor="end" class="b">$941.75</text>
+  <line x1="256" y1="652" x2="1240" y2="652" stroke="#262A31" stroke-width="1"/>
+  <text x="256" y="677.0" class="bb">Oct 26</text>
+  <text x="380" y="677.0" class="bb">Closing balance</text>
+  <text x="1080" y="677.0" text-anchor="end" class="bb"></text>
+  <text x="1240" y="677.0" text-anchor="end" class="bb">$941.75</text>
+  <text x="256" y="722" class="m">Each line is one ledger entry. Closing balance = opening balance + every amount above.</text>
+</svg>
