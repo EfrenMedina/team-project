@@ -1,5 +1,7 @@
 # Team Project: Stock Trading Simulator
 
+[![CI](https://github.com/EfrenMedina/team-project/actions/workflows/ci.yml/badge.svg)](https://github.com/EfrenMedina/team-project/actions/workflows/ci.yml)
+
 ## Summary
 
 A desktop app for practising stock trading with simulated money. Users sign up, search real stocks, view prices and charts, buy and sell shares, place limit orders, and track their portfolio and profit/loss. Every movement of cash is recorded in a double-entry ledger, so balances can always be explained and audited.
