@@ -29,6 +29,7 @@
         <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
         <checkstyle.version>10.18.1</checkstyle.version>
+        <jacoco.version>0.8.13</jacoco.version>
     </properties>
 
     <dependencyManagement>
@@ -100,6 +101,27 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+            <!-- Test coverage: `mvn verify` writes target/site/jacoco/index.html -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <!-- Style checks with Google's rules. Warnings only for now; SCRUM-39 makes them enforced. -->
             <plugin>

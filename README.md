@@ -64,6 +64,17 @@ Offline demo mode: _to be added (SCRUM-43)._
 - Branch names start with the Jira key, e.g. `SCRUM-19-ledger-entities`, so they link to the ticket.
 - Money is stored as integer cents; never use `double` or `REAL` for money.
 
+## How we test
+
+- Run everything with `mvn clean verify`. This runs the JUnit 5 tests, writes the coverage report to `target/site/jacoco/index.html` and the style report to `target/checkstyle-result.xml`. CI uploads both on every PR.
+- Copy the pattern in [`ExampleInteractorTest`](src/test/java/app/ExampleInteractorTest.java) when testing a use case:
+  - an **in-memory DAO** instead of SQLite, so tests are fast and need no files;
+  - a **fake presenter** that records what the interactor sent, so we assert on output data, not on the UI;
+  - a **fixed `Clock`** passed into the interactor, so time-based logic gives the same result every run.
+- Name tests after behaviour: `action_condition_expectedResult`, e.g. `buyShares_insufficientCash_presentsError`.
+- Test both the success path and each failure path of every interactor.
+- Tests must not call the real stock APIs; use the fake gateway and the recorded JSON in `src/test/resources/api/`.
+
 ## Screenshots
 
 _Coming once the first screens are built._
