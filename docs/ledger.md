@@ -94,6 +94,8 @@ The ledger classes live in `entity/`.
 - `EntrySide`: `DEBIT` or `CREDIT`.
 - `LedgerLine`: one line, made of an account, a side and a positive amount.
 - `JournalEntry`: id, accountId, description, postedAt and its lines.
+- `UnbalancedEntryException`: thrown when an entry breaks the rules below.
+- `LedgerBalance`: calculates an account's balance from a list of entries.
 
 Rules the classes enforce:
 
@@ -102,8 +104,12 @@ Rules the classes enforce:
 - An entry needs at least 2 lines, and its debits must equal its credits. Otherwise the
   constructor throws `UnbalancedEntryException`.
 - Entries can't be changed after they are created. To correct a mistake, post a new entry.
-- Balances are calculated from a list of entries with the ledger's balance helper; `Account` has
-  no cash field.
+- Balances are calculated from a list of entries with `LedgerBalance.balanceOf(account, entries)`.
+  A line on the account's normal side adds to the balance and a line on the other side subtracts,
+  so balances come out positive (`CONTRIBUTED_CAPITAL` is 10,000.00 after the deposit) and a
+  negative `REALIZED_GAINS` means a net loss. `Account` has no cash field.
+
+The worked example above is tested in `LedgerBalanceTest`.
 
 You will rarely build entries by hand: `JournalEntryFactory` (SCRUM-25) has one method per event
 (`forOpeningDeposit`, `forBuy`, `forSell`) that produces the entries shown above.

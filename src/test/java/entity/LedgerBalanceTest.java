@@ -64,19 +64,12 @@ class LedgerBalanceTest {
     // Inputs
     List<JournalEntry> entries = List.of(deposit(), buy(), sellAtGain());
 
-    // Action
-    Money cash = LedgerBalance.balanceOf(LedgerAccount.CASH, entries);
-    Money investments = LedgerBalance.balanceOf(LedgerAccount.INVESTMENTS_AT_COST, entries);
-    Money commission = LedgerBalance.balanceOf(LedgerAccount.COMMISSION_EXPENSE, entries);
-    Money capital = LedgerBalance.balanceOf(LedgerAccount.CONTRIBUTED_CAPITAL, entries);
-    Money gains = LedgerBalance.balanceOf(LedgerAccount.REALIZED_GAINS, entries);
-
-    // Assertion
-    assertEquals(Money.of("9348.00"), cash);
-    assertEquals(Money.of("750.00"), investments);
-    assertEquals(Money.of("2.00"), commission);
-    assertEquals(Money.of("10000.00"), capital);
-    assertEquals(Money.of("100.00"), gains);
+    // Action / Assertion
+    assertEquals(Money.of("9348.00"), balance(LedgerAccount.CASH, entries));
+    assertEquals(Money.of("750.00"), balance(LedgerAccount.INVESTMENTS_AT_COST, entries));
+    assertEquals(Money.of("2.00"), balance(LedgerAccount.COMMISSION_EXPENSE, entries));
+    assertEquals(Money.of("10000.00"), balance(LedgerAccount.CONTRIBUTED_CAPITAL, entries));
+    assertEquals(Money.of("100.00"), balance(LedgerAccount.REALIZED_GAINS, entries));
   }
 
   @Test
@@ -122,6 +115,10 @@ class LedgerBalanceTest {
         line(LedgerAccount.COMMISSION_EXPENSE, EntrySide.DEBIT, 100),
         line(LedgerAccount.REALIZED_GAINS, EntrySide.DEBIT, 5_000),
         line(LedgerAccount.INVESTMENTS_AT_COST, EntrySide.CREDIT, 75_000));
+  }
+
+  private static Money balance(LedgerAccount account, List<JournalEntry> entries) {
+    return LedgerBalance.balanceOf(account, entries);
   }
 
   private static LedgerLine line(LedgerAccount account, EntrySide side, long cents) {

@@ -45,7 +45,7 @@ public final class Money implements Comparable<Money> {
    * @param amount the decimal amount, with at most two decimal places
    * @return the amount
    * @throws IllegalArgumentException if {@code amount} is null, not a number, or has more than
-   *                                  two decimal places
+   *     two decimal places
    */
   public static Money of(String amount) {
     if (amount == null || amount.trim().isEmpty()) {
@@ -135,7 +135,7 @@ public final class Money implements Comparable<Money> {
    *
    * @param other the amount to compare with
    * @return a negative number, zero or a positive number if this amount is less than, equal to
-   * or greater than {@code other}
+   *     or greater than {@code other}
    */
   @Override
   public int compareTo(Money other) {

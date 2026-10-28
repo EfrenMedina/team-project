@@ -12,6 +12,12 @@ import java.util.Objects;
  */
 public record LedgerLine(LedgerAccount account, EntrySide side, Money amount) {
 
+  /**
+   * Creates a line.
+   *
+   * @throws NullPointerException if any component is null
+   * @throws IllegalArgumentException if {@code amount} is not greater than zero
+   */
   public LedgerLine {
     Objects.requireNonNull(account, "account");
     Objects.requireNonNull(side, "side");

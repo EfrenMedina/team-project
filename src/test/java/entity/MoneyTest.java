@@ -54,7 +54,7 @@ class MoneyTest {
   }
 
   @Test
-  void of_notANumber_throws() {
+  void of_letters_throws() {
     // Inputs
     String amount = "abc";
 

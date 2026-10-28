@@ -18,6 +18,13 @@ import java.util.Objects;
 public record JournalEntry(String id, String accountId, String description,
     Instant postedAt, List<LedgerLine> lines) {
 
+  /**
+   * Creates an entry, copying the lines.
+   *
+   * @throws NullPointerException if any component or line is null
+   * @throws UnbalancedEntryException if there are fewer than 2 lines or debits don't equal
+   *     credits
+   */
   public JournalEntry {
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(accountId, "accountId");
