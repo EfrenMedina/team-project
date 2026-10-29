@@ -34,9 +34,44 @@ Planning and tickets live in the team's Jira board (project `SCRUM`).
 | API | Used for |
 |---|---|
 | [Finnhub](https://finnhub.io/docs/api) | Live quotes, symbol search, company profile |
-| [Twelve Data](https://twelvedata.com/docs) | Daily price history for charts |
+| [Twelve Data](https://twelvedata.com/docs) | Daily price history for charts, and fallback quotes |
 
-Provider decision, measured rate limits and fallback: _to be filled in by SCRUM-18._
+### Provider decision (SCRUM-18)
+
+Tested on 2026-10-29 with free-plan keys, using [`spike/MarketDataSpike.java`](spike/MarketDataSpike.java).
+Every endpoint we need returned data for AAPL and MSFT. One real response per endpoint is saved in
+[`src/test/resources/api/`](src/test/resources/api/).
+
+| Endpoint | Provider | Result |
+|---|---|---|
+| Quote (`/quote`) | Finnhub | Works |
+| Symbol search (`/search`) | Finnhub | Works |
+| Company profile (`/stock/profile2`) | Finnhub | Works |
+| Daily candles (`/stock/candle`) | Finnhub | **HTTP 403**, not on the free plan |
+| Daily time series (`/time_series`) | Twelve Data | Works |
+| Quote (`/quote`) | Twelve Data | Works (used as the fallback) |
+
+**Measured rate limits** (`java spike/MarketDataSpike.java limits`):
+
+- **Finnhub: 60 requests per minute.** 60 back-to-back quote calls succeeded in 5.2 s, and the 61st
+  got HTTP 429 `Too many requests`. The `X-Ratelimit-Limit` and `X-Ratelimit-Remaining` response
+  headers show the budget, so the gateway can read them.
+- **Twelve Data: 8 credits per minute and 800 per day.** Each call costs 1 credit, including
+  `/api_usage`. The 9th credit in a minute got HTTP 429 `run out of API credits for the current minute`.
+
+**Decision.** Finnhub serves quotes, symbol search and company profiles. Twelve Data serves daily
+price history only, because Finnhub's candles need a paid plan. Twelve Data's 8 calls a minute is the
+tight limit, so we cache each symbol's daily history and fetch it at most once a day. The 60
+Finnhub calls a minute are shared by everything that polls quotes (watchlist, portfolio, limit
+order fills), so polling must batch symbols and stay well under that budget.
+
+**Fallback.**
+
+- If Finnhub fails or returns 429, quotes come from **Twelve Data `/quote`**, which works on the
+  free plan.
+- If Twelve Data is out of credits, charts show the **last cached history**.
+- If both providers are down, offline demo mode (SCRUM-43) serves the recorded JSON in
+  `src/test/resources/api/`.
 
 API keys are read from `config.properties` in the project root (git-ignored, never committed).
 
