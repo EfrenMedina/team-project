@@ -34,7 +34,7 @@ Planning and tickets live in the team's Jira board (project `SCRUM`).
 | API | Used for |
 |---|---|
 | [Finnhub](https://finnhub.io/docs/api) | Live quotes, symbol search, company profile |
-| [Twelve Data](https://twelvedata.com/docs) | Daily price history for charts |
+| [Twelve Data](https://twelvedata.com/docs) | Daily price history for charts, and fallback quotes |
 
 ### Provider decision (SCRUM-18)
 
