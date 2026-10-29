@@ -70,10 +70,8 @@ public class MarketDataSpike {
           twelveData("/time_series?symbol=" + symbol + "&interval=1day&outputsize=30"));
       // Not used by the plan, checked to back up the provider decision
       check("twelvedata-quote", symbol, twelveData("/quote?symbol=" + symbol));
-      check(
-          "finnhub-candle",
-          symbol,
-          finnhub("/stock/candle?symbol=" + symbol + "&resolution=D&from=1759276800&to=1761696000"));
+      String lastMonth = "&resolution=D&from=1759276800&to=1761696000";
+      check("finnhub-candle", symbol, finnhub("/stock/candle?symbol=" + symbol + lastMonth));
     }
   }
 
