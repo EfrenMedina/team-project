@@ -131,6 +131,12 @@ public final class Money implements Comparable<Money> {
   }
 
   /**
+   * Returns whether this amount is zero or less.
+   * @return true if this amount is smaller than or equal to $0.00
+   */
+  public boolean isZeroOrLess() {return this.amount.compareTo(BigDecimal.ZERO) <= 0;}
+
+  /**
    * Compares two amounts by value.
    *
    * @param other the amount to compare with

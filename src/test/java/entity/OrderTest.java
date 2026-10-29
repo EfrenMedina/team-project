@@ -2,6 +2,7 @@ package entity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,7 +30,7 @@ class OrderTest {
     // Inputs
     Order order = pendingOrder();
     order.setOrderType(OrderType.LIMIT);
-    order.setLimitPrice(150);
+    order.setLimitPrice(Money.of("150.00"));
 
     // Action
     order.acceptOrder();
@@ -365,10 +366,10 @@ class OrderTest {
     order.setOrderType(OrderType.LIMIT);
 
     // Action
-    order.setLimitPrice(150);
+    order.setLimitPrice(Money.of("150.00"));
 
     // Assertion
-    assertEquals(150, order.getLimitPrice());
+    assertEquals(Money.of("150.00"), order.getLimitPrice());
   }
 
   @Test
@@ -376,11 +377,11 @@ class OrderTest {
     // Inputs
     Order order = pendingOrder();
     order.setOrderType(OrderType.LIMIT);
-    order.setLimitPrice(150);
+    order.setLimitPrice(Money.of("150.00"));
 
     // Action and assertion
-    assertReason(OrderException.Reason.INVALID_LIMIT_PRICE, () -> order.setLimitPrice(0));
-    assertEquals(150, order.getLimitPrice());
+    assertReason(OrderException.Reason.INVALID_LIMIT_PRICE, () -> order.setLimitPrice(Money.ZERO));
+    assertEquals(Money.of("150.00"), order.getLimitPrice());
   }
 
   @Test
@@ -388,11 +389,24 @@ class OrderTest {
     // Inputs
     Order order = pendingOrder();
     order.setOrderType(OrderType.LIMIT);
-    order.setLimitPrice(150);
+    order.setLimitPrice(Money.of("150.00"));
 
     // Action and assertion
-    assertReason(OrderException.Reason.INVALID_LIMIT_PRICE, () -> order.setLimitPrice(-5));
-    assertEquals(150, order.getLimitPrice());
+    assertReason(OrderException.Reason.INVALID_LIMIT_PRICE,
+        () -> order.setLimitPrice(Money.of("-5.00")));
+    assertEquals(Money.of("150.00"), order.getLimitPrice());
+  }
+
+  @Test
+  void setLimitPrice_null_throws() {
+    // Inputs
+    Order order = pendingOrder();
+    order.setOrderType(OrderType.LIMIT);
+    order.setLimitPrice(Money.of("150.00"));
+
+    // Action and assertion
+    assertReason(OrderException.Reason.INVALID_LIMIT_PRICE, () -> order.setLimitPrice(null));
+    assertEquals(Money.of("150.00"), order.getLimitPrice());
   }
 
   @Test
@@ -401,8 +415,9 @@ class OrderTest {
     Order order = new Order("order-1", "AAPL");
 
     // Action and assertion
-    assertReason(OrderException.Reason.MISSING_ORDER_TYPE, () -> order.setLimitPrice(150));
-    assertEquals(0, order.getLimitPrice());
+    assertReason(OrderException.Reason.MISSING_ORDER_TYPE,
+        () -> order.setLimitPrice(Money.of("150.00")));
+    assertNull(order.getLimitPrice());
   }
 
   @Test
@@ -411,8 +426,9 @@ class OrderTest {
     Order order = pendingOrder();
 
     // Action and assertion
-    assertReason(OrderException.Reason.LIMIT_PRICE_NOT_ALLOWED, () -> order.setLimitPrice(150));
-    assertEquals(0, order.getLimitPrice());
+    assertReason(OrderException.Reason.LIMIT_PRICE_NOT_ALLOWED,
+        () -> order.setLimitPrice(Money.of("150.00")));
+    assertNull(order.getLimitPrice());
   }
 
   @Test
@@ -420,14 +436,14 @@ class OrderTest {
     // Inputs
     Order order = pendingOrder();
     order.setOrderType(OrderType.LIMIT);
-    order.setLimitPrice(150);
+    order.setLimitPrice(Money.of("150.00"));
     order.acceptOrder();
 
     // Action
-    order.setLimitPrice(200);
+    order.setLimitPrice(Money.of("200.00"));
 
     // Assertion
-    assertEquals(150, order.getLimitPrice());
+    assertEquals(Money.of("150.00"), order.getLimitPrice());
   }
 
   // Helpers

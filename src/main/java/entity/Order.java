@@ -13,7 +13,7 @@ public class Order {
     private OrderType type;
     private OrderSide side;
     private long amount;
-    private long limitPrice;
+    private Money limitPrice;
     private OrderStatus status;
 
     /**
@@ -83,7 +83,7 @@ public class Order {
      * @throws OrderException if the order type hasn't been set, the order is a MARKET order,
      *     or limitPrice is 0 or less
      */
-    public void setLimitPrice(long limitPrice) throws OrderException{
+    public void setLimitPrice(Money limitPrice) throws OrderException{
         if (status != OrderStatus.PENDING){
             return; // already sent, leave the order unchanged
         }
@@ -95,9 +95,9 @@ public class Order {
             throw new OrderException(OrderException.Reason.LIMIT_PRICE_NOT_ALLOWED, "Order " + id +
                     " with type MARKET cannot be assigned a limit price.");
         }
-        else if (limitPrice <= 0){
+        else if (limitPrice == null || limitPrice.isZeroOrLess()){
             throw new OrderException(OrderException.Reason.INVALID_LIMIT_PRICE, "Order " + id +
-                    " cannot have a limit price of 0 or less.");
+                    " must have a limit price greater than 0.");
         }
         else {
             this.limitPrice = limitPrice;
@@ -126,7 +126,7 @@ public class Order {
             throw new OrderException(OrderException.Reason.MISSING_ORDER_TYPE, "Order " + id +
                     " is missing a order type.");
         }
-        if (type == OrderType.LIMIT && limitPrice <= 0){
+        if (type == OrderType.LIMIT && (limitPrice == null || limitPrice.isZeroOrLess())){
             throw new OrderException(OrderException.Reason.MISSING_LIMIT_PRICE, "Order " + id +
                     " with type LIMIT is missing a limit price.");
         }
@@ -238,7 +238,7 @@ public class Order {
      *
      * @return the limit price, or 0 if it hasn't been set
      */
-    public long getLimitPrice(){
+    public Money getLimitPrice(){
         return this.limitPrice;
     }
 
