@@ -62,7 +62,8 @@ Offline demo mode: _to be added (SCRUM-43)._
 
 - Every change goes through a pull request into `main`, with one approval and a passing build.
 - Branch names start with the Jira key, e.g. `SCRUM-19-ledger-entities`, so they link to the ticket.
-- Money is stored as integer cents; never use `double` or `REAL` for money.
+- Money is stored as integer cents; never use `double` or `REAL` for money. Every movement of cash is a
+  journal entry; [`docs/ledger.md`](docs/ledger.md) explains debits, credits and the ledger classes.
 
 ## How we test
 
