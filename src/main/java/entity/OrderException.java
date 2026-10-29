@@ -17,7 +17,8 @@ public class OrderException extends RuntimeException{
         INVALID_QUANTITY,
         MISSING_ORDER_TYPE,
         MISSING_SIDE,
-        LIMIT_PRICE_NOT_ALLOWED
+        LIMIT_PRICE_NOT_ALLOWED,
+        INVALID_LIMIT_PRICE
     }
 
     private final Reason reason;
