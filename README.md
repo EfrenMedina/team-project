@@ -145,6 +145,23 @@ Offline demo mode: _to be added (SCRUM-43)._
 - Money is stored as integer cents; never use `double` or `REAL` for money. Every movement of cash is a
   journal entry; [`docs/ledger.md`](docs/ledger.md) explains debits, credits and the ledger classes.
 
+### Architecture rules
+
+[`ArchitectureTest`](src/test/java/architecture/ArchitectureTest.java) checks these on every build,
+so breaking one fails `mvn clean verify` and CI. The failure names each class and the dependency
+that broke the rule. Only production code is checked; tests may use anything.
+
+| Rule | Allowed | Not allowed |
+|---|---|---|
+| `entity` only uses Java | `entity`, `java.*` | everything else, including `usecase` |
+| `usecase` only uses entities and Java | `usecase`, `entity`, `java.*` | `interfaceadapter`, `dataaccess`, `view`, libraries |
+| Neither `entity` nor `usecase` touches the UI, network, JSON, database or files | | Swing, AWT, OkHttp, org.json, `java.sql`, `java.io` |
+| `view` never uses `dataaccess` | | any `dataaccess` class (screens go through controllers and use cases) |
+
+The `view` rule passes while there are no screens yet. If a new feature needs something a rule
+forbids, put that code in an outer layer behind an interface the use case owns (like
+`StockDataGateway`), rather than changing the rule.
+
 ## How we test
 
 - Run everything with `mvn clean verify`. This runs the JUnit 5 tests, writes the coverage report to `target/site/jacoco/index.html` and the style report to `target/checkstyle-result.xml`. CI uploads both on every PR.
