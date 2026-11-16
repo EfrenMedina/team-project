@@ -8,7 +8,7 @@ import java.util.Base64;
 import java.util.Objects;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import usecase.PasswordHasher;
+import usecase.shared.PasswordHasher;
 
 /**
  * Hashes passwords with PBKDF2 (HMAC-SHA256) and a random 16-byte salt per password.

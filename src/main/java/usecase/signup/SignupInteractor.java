@@ -4,8 +4,8 @@ import entity.Money;
 import entity.User;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import usecase.IdGenerator;
-import usecase.PasswordHasher;
+import usecase.shared.IdGenerator;
+import usecase.shared.PasswordHasher;
 
 /**
  * Creates a new user from the sign-up form. The rules are checked in this order, and the

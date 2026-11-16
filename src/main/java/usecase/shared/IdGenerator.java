@@ -1,4 +1,4 @@
-package usecase;
+package usecase.shared;
 
 /**
  * Creates unique ids for new things such as users, accounts and journal entries.

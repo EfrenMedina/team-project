@@ -17,8 +17,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import usecase.IdGenerator;
-import usecase.PasswordHasher;
+import usecase.shared.IdGenerator;
+import usecase.shared.PasswordHasher;
 
 class SignupInteractorTest {
 

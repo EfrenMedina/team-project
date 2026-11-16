@@ -1,4 +1,4 @@
-package usecase;
+package usecase.shared;
 
 /**
  * Turns passwords into hashes that are safe to store, and checks a
