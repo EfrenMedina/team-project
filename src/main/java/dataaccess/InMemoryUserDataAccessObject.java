@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import usecase.login.LoginUserDataAccessInterface;
 import usecase.signup.SignupUserDataAccessInterface;
 
 /**
@@ -19,7 +21,8 @@ import usecase.signup.SignupUserDataAccessInterface;
  * <p>Users are stored under their lowercase username, so "Alice" and "alice" count as the
  * same name.
  */
-public class InMemoryUserDataAccessObject implements SignupUserDataAccessInterface {
+public class InMemoryUserDataAccessObject
+    implements SignupUserDataAccessInterface, LoginUserDataAccessInterface {
 
   /** Every saved user, keyed by lowercase username. */
   private final Map<String, User> usersByUsername = new HashMap<>();
@@ -64,6 +67,17 @@ public class InMemoryUserDataAccessObject implements SignupUserDataAccessInterfa
     usersByUsername.put(key, user);
     accountsById.put(account.getId(), account);
     entries.add(openingDeposit);
+  }
+
+  /**
+   * Finds the user with this username, ignoring case.
+   *
+   * @param username the username to look for
+   * @return the user, or an empty {@code Optional} if nobody has that username
+   */
+  @Override
+  public Optional<User> findByUsername(String username) {
+    return Optional.ofNullable(usersByUsername.get(key(username)));
   }
 
   /**
