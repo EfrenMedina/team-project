@@ -3,7 +3,6 @@ package view;
 import interfaceadapter.signup.SignupController;
 import interfaceadapter.signup.SignupState;
 import interfaceadapter.signup.SignupViewModel;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -19,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import view.ui.Theme;
 
 /**
  * The Sign-up card from wireframe 01: username, password and confirm-password fields, a
@@ -27,15 +27,10 @@ import javax.swing.JTextField;
  *
  * <p>After a successful sign-up it shows a welcome line with the starting cash. Moving on to
  * the Dashboard is the app shell's job (SCRUM-23); this screen doesn't switch screens itself.
- * Colours and fonts come from the look and feel until the shared UI kit (SCRUM-22) is merged.
+ * Colours come from {@link Theme}; the background and font come from the look and feel the
+ * app installs at startup.
  */
 public class SignupView extends JPanel implements PropertyChangeListener {
-
-  /** Colour of error messages, matching the wireframe's red. */
-  private static final Color ERROR_COLOUR = new Color(0xE5, 0x48, 0x4D);
-
-  /** Colour of the success line, matching the wireframe's green. */
-  private static final Color SUCCESS_COLOUR = new Color(0x3D, 0xD6, 0x8C);
 
   final JTextField usernameField = new JTextField(20);
   final JPasswordField passwordField = new JPasswordField(20);
@@ -65,10 +60,14 @@ public class SignupView extends JPanel implements PropertyChangeListener {
 
     JLabel title = new JLabel("Sign up");
     title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
-    errorLabel.setForeground(ERROR_COLOUR);
-    successLabel.setForeground(SUCCESS_COLOUR);
+    errorLabel.setForeground(Theme.LOSS);
+    successLabel.setForeground(Theme.GAIN);
     JLabel hint = new JLabel("At least 8 characters.");
     hint.setFont(hint.getFont().deriveFont(11f));
+    hint.setForeground(Theme.MUTED);
+    JLabel startingCash = new JLabel("New accounts start with $100,000.00 cash.");
+    startingCash.setForeground(Theme.MUTED);
+    styleAsPrimary(createAccountButton);
 
     int row = 0;
     addRow(title, row++, 16);
@@ -81,7 +80,7 @@ public class SignupView extends JPanel implements PropertyChangeListener {
     addRow(repeatPasswordField, row++, 4);
     addRow(hint, row++, 16);
     addRow(createAccountButton, row++, 12);
-    addRow(new JLabel("New accounts start with $100,000.00 cash."), row++, 4);
+    addRow(startingCash, row++, 4);
     addRow(successLabel, row, 0);
 
     createAccountButton.addActionListener(event -> submit());
@@ -152,13 +151,29 @@ public class SignupView extends JPanel implements PropertyChangeListener {
     }
     boolean hasError = state.error() != null;
     errorLabel.setText(hasError ? "! " + state.error() : " ");
-    usernameField.putClientProperty("JComponent.outline", hasError ? "error" : null);
+    usernameField.putClientProperty("JComponent.outline", hasError ? Theme.LOSS : null);
 
     boolean signedUp = state.signedUpUsername() != null;
     successLabel.setText(signedUp
         ? "Welcome, " + state.signedUpUsername() + ". Your account starts with "
             + state.startingCash() + "."
         : " ");
+  }
+
+  /**
+   * Makes a button the wireframe's main action: a filled, fully rounded {@link Theme#PRIMARY}
+   * pill with bold dark text.
+   *
+   * @param button the button to style
+   */
+  private static void styleAsPrimary(JButton button) {
+    button.setBackground(Theme.PRIMARY);
+    button.setForeground(Theme.PRIMARY_TEXT);
+    button.setFont(button.getFont().deriveFont(Font.BOLD));
+    // FlatLaf client properties; other look and feels ignore them.
+    button.putClientProperty("JButton.buttonType", "roundRect");
+    button.putClientProperty("JButton.focusedBackground", Theme.PRIMARY);
+    button.putClientProperty("JButton.hoverBackground", Theme.PRIMARY.brighter());
   }
 
   /**

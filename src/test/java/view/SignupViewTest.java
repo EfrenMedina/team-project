@@ -48,7 +48,7 @@ class SignupViewTest {
     // Inputs: a use case that always fails, reported through the real presenter
     SignupPresenter presenter = new SignupPresenter(viewModel);
     view.setSignupController(
-        new SignupController(input -> presenter.prepareFailView("That username is taken.")));
+        new SignupController(input -> presenter.prepareFailView("That username is taken")));
     view.usernameField.setText("bob");
     view.createAccountButton.doClick();
     view.usernameField.setText("Bob");
@@ -58,16 +58,16 @@ class SignupViewTest {
 
     // Assertion
     assertEquals("Bob", view.usernameField.getText());
-    assertEquals("! That username is taken.", view.errorLabel.getText());
+    assertEquals("! That username is taken", view.errorLabel.getText());
   }
 
   @Test
   void stateWithError_shown_displaysErrorUnderUsername() {
     // Action
-    viewModel.setState(new SignupState("alice", "That username is already taken.", null, null));
+    viewModel.setState(new SignupState("alice", "That username is already taken", null, null));
 
     // Assertion
-    assertEquals("! That username is already taken.", view.errorLabel.getText());
+    assertEquals("! That username is already taken", view.errorLabel.getText());
     assertEquals("alice", view.usernameField.getText());
   }
 

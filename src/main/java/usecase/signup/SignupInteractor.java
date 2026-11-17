@@ -33,16 +33,16 @@ public class SignupInteractor implements SignupInputBoundary {
 
   /** Shown when the username has the wrong length or characters. */
   public static final String INVALID_USERNAME =
-      "Username must be 3 to 20 letters, digits or underscores.";
+      "Username must be 3 to 20 letters, digits or underscores";
 
   /** Shown when the password is shorter than 8 or longer than 64 characters. */
-  public static final String INVALID_PASSWORD_LENGTH = "Password must be 8 to 64 characters.";
+  public static final String INVALID_PASSWORD_LENGTH = "Password must be 8 to 64 characters";
 
   /** Shown when the password and the repeated password differ. */
-  public static final String PASSWORDS_DONT_MATCH = "Passwords don't match.";
+  public static final String PASSWORDS_DONT_MATCH = "Passwords don't match";
 
   /** Shown when another user already has the username, ignoring case. */
-  public static final String USERNAME_TAKEN = "That username is already taken.";
+  public static final String USERNAME_TAKEN = "That username is already taken";
 
   /** 3 to 20 letters, digits or underscores, and nothing else. */
   private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
