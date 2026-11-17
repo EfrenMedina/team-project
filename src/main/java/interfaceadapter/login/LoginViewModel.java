@@ -10,7 +10,9 @@ import java.util.Objects;
  * presenters set the state; the screen listens and redraws.
  *
  * <p>When the app shell from SCRUM-23 adds a shared {@code ViewModel} base class, this class
- * should extend it instead of managing its own listeners.
+ * should extend it instead of managing its own listeners. Switching screens also belongs to
+ * the app shell: it can listen for a state whose {@code loggedInUsername} is set to show the
+ * Dashboard, and for one where it goes back to {@code null} to show Login again.
  */
 public class LoginViewModel implements ClearedOnLogout {
 

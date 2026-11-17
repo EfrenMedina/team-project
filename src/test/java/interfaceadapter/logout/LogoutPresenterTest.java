@@ -45,6 +45,12 @@ class LogoutPresenterTest {
   }
 
   @Test
+  void constructor_nullList_throws() {
+    // Action / Assertion
+    assertThrows(NullPointerException.class, () -> new LogoutPresenter(null));
+  }
+
+  @Test
   void constructor_nullItem_throws() {
     // Inputs
     List<ClearedOnLogout> withNull = Collections.singletonList(null);

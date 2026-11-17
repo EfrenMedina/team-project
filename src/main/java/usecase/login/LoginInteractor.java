@@ -19,10 +19,10 @@ import usecase.shared.SessionHolder;
 public class LoginInteractor implements LoginInputBoundary {
 
   /** Shown when either field is left empty. */
-  public static final String MISSING_CREDENTIALS = "Enter your username and password.";
+  public static final String MISSING_CREDENTIALS = "Enter your username and password";
 
   /** Shown for an unknown username and for a wrong password alike. */
-  public static final String INCORRECT_CREDENTIALS = "Username or password is incorrect.";
+  public static final String INCORRECT_CREDENTIALS = "Username or password is incorrect";
 
   /** Finds users by username. */
   private final LoginUserDataAccessInterface userDataAccess;

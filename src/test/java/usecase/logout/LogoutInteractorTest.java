@@ -1,6 +1,7 @@
 package usecase.logout;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dataaccess.InMemorySessionHolder;
@@ -56,6 +57,13 @@ class LogoutInteractorTest {
     // Assertion
     assertTrue(session.currentUser().isEmpty());
     assertEquals(2, presenter.successCalls);
+  }
+
+  @Test
+  void constructor_nullDependency_throws() {
+    // Action / Assertion
+    assertThrows(NullPointerException.class, () -> new LogoutInteractor(null, presenter));
+    assertThrows(NullPointerException.class, () -> new LogoutInteractor(session, null));
   }
 
   private static class FakeLogoutPresenter implements LogoutOutputBoundary {

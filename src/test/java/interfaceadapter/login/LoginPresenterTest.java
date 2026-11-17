@@ -1,12 +1,14 @@
 package interfaceadapter.login;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import usecase.login.LoginInteractor;
 import usecase.login.LoginOutputData;
 
 class LoginPresenterTest {
@@ -24,9 +26,9 @@ class LoginPresenterTest {
   }
 
   @Test
-  void prepareSuccessView_setsLoggedInUserAndClearsError() {
+  void prepareSuccessView_afterFailedTry_showsUserAndClearsError() {
     // Inputs
-    viewModel.setState(new LoginState("alice", "Username or password is incorrect.", null));
+    viewModel.setState(new LoginState("alice", LoginInteractor.INCORRECT_CREDENTIALS, null));
     events.clear();
 
     // Action
@@ -39,17 +41,16 @@ class LoginPresenterTest {
   }
 
   @Test
-  void prepareFailView_showsErrorAndKeepsTypedUsername() {
+  void prepareFailView_incorrectCredentials_showsErrorAndKeepsTypedUsername() {
     // Inputs
     viewModel.setState(new LoginState("alice", null, null));
     events.clear();
 
     // Action
-    presenter.prepareFailView("Username or password is incorrect.");
+    presenter.prepareFailView(LoginInteractor.INCORRECT_CREDENTIALS);
 
     // Assertion
-    assertEquals(
-        new LoginState("alice", "Username or password is incorrect.", null),
+    assertEquals(new LoginState("alice", LoginInteractor.INCORRECT_CREDENTIALS, null),
         viewModel.getState());
     assertEquals(1, events.size());
   }
@@ -71,5 +72,17 @@ class LoginPresenterTest {
   void newViewModel_startsWithEmptyForm() {
     // Action / Assertion
     assertEquals(LoginState.EMPTY, new LoginViewModel().getState());
+  }
+
+  @Test
+  void setState_null_throws() {
+    // Action / Assertion
+    assertThrows(NullPointerException.class, () -> viewModel.setState(null));
+  }
+
+  @Test
+  void constructor_nullViewModel_throws() {
+    // Action / Assertion
+    assertThrows(NullPointerException.class, () -> new LoginPresenter(null));
   }
 }

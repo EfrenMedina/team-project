@@ -6,14 +6,16 @@ import java.util.Objects;
 import usecase.logout.LogoutOutputBoundary;
 
 /**
- * Wipes the logged-out user's data from every screen.
+ * Turns the logout use case's result into what the screens show: the logged-out user's data
+ * is wiped from every one of them.
  *
- * <p>When the app shell from SCRUM-23 adds a {@code ViewManagerModel}, this should also switch
- * back to the Login screen there.
+ * <p>Going back to the Login screen belongs to the app shell from SCRUM-23: clearing the
+ * Login screen's state sets its {@code loggedInUsername} back to {@code null}, which the shell
+ * can listen for.
  */
 public class LogoutPresenter implements LogoutOutputBoundary {
 
-  /** Every view model that holds user data, cleared on logout. */
+  /** Every screen's state that holds user data, which this presenter clears. */
   private final List<ClearedOnLogout> viewModelsToClear;
 
   /**

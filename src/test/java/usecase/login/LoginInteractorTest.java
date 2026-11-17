@@ -2,6 +2,7 @@ package usecase.login;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dataaccess.InMemorySessionHolder;
@@ -25,6 +26,7 @@ class LoginInteractorTest {
   private InMemorySessionHolder session;
   private FakeLoginPresenter presenter;
   private RecordingAfterLoginStep afterLoginStep;
+  private FakePasswordHasher hasher;
   private LoginInteractor interactor;
   private User alice;
 
@@ -34,7 +36,7 @@ class LoginInteractorTest {
     session = new InMemorySessionHolder();
     presenter = new FakeLoginPresenter();
     afterLoginStep = new RecordingAfterLoginStep();
-    FakePasswordHasher hasher = new FakePasswordHasher();
+    hasher = new FakePasswordHasher();
     interactor = new LoginInteractor(dataAccess, presenter, hasher, session, afterLoginStep);
 
     alice = new User("user-1", "Alice", hasher.hash(PASSWORD));
@@ -79,8 +81,7 @@ class LoginInteractorTest {
   void execute_withNoAfterLoginStep_stillLogsIn() {
     // Inputs
     LoginInteractor withoutStep =
-        new LoginInteractor(
-            dataAccess, presenter, new FakePasswordHasher(), session, AfterLoginStep.NONE);
+        new LoginInteractor(dataAccess, presenter, hasher, session, AfterLoginStep.NONE);
 
     // Action
     withoutStep.execute(new LoginInputData("Alice", PASSWORD));
@@ -170,8 +171,29 @@ class LoginInteractorTest {
     assertFailedWith(LoginInteractor.MISSING_CREDENTIALS);
   }
 
+  // ---- Construction ----
+
+  @Test
+  void constructor_nullDependency_throws() {
+    // Inputs
+    AfterLoginStep step = AfterLoginStep.NONE;
+
+    // Action / Assertion
+    assertThrows(NullPointerException.class,
+        () -> new LoginInteractor(null, presenter, hasher, session, step));
+    assertThrows(NullPointerException.class,
+        () -> new LoginInteractor(dataAccess, null, hasher, session, step));
+    assertThrows(NullPointerException.class,
+        () -> new LoginInteractor(dataAccess, presenter, null, session, step));
+    assertThrows(NullPointerException.class,
+        () -> new LoginInteractor(dataAccess, presenter, hasher, null, step));
+    assertThrows(NullPointerException.class,
+        () -> new LoginInteractor(dataAccess, presenter, hasher, session, null));
+  }
+
   // ---- Helpers ----
 
+  /** Checks that login failed with this message, started no session and ran no step. */
   private void assertFailedWith(String expectedError) {
     assertEquals(expectedError, presenter.error);
     assertNull(presenter.success);

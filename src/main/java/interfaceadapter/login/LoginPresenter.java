@@ -5,14 +5,12 @@ import usecase.login.LoginOutputBoundary;
 import usecase.login.LoginOutputData;
 
 /**
- * Shows the outcome of a login on the Login screen.
- *
- * <p>When the app shell from SCRUM-23 adds a {@code ViewManagerModel}, the success case should
- * also switch to the Dashboard there.
+ * Turns the login use case's result into what the Login screen shows: the error message on
+ * failure, or the logged-in username on success.
  */
 public class LoginPresenter implements LoginOutputBoundary {
 
-  /** The Login screen's view model. */
+  /** The Login screen's state, which this presenter updates. */
   private final LoginViewModel loginViewModel;
 
   /**
@@ -26,7 +24,7 @@ public class LoginPresenter implements LoginOutputBoundary {
   }
 
   /**
-   * Records who logged in and removes any old error.
+   * Shows who logged in, and clears any earlier error.
    *
    * @param outputData the logged-in user's details
    */
@@ -37,7 +35,7 @@ public class LoginPresenter implements LoginOutputBoundary {
   }
 
   /**
-   * Shows the error under the form, keeping the username the user typed.
+   * Shows the error and keeps the username the user typed, so they can correct it.
    *
    * @param error the message to show
    */
