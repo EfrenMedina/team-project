@@ -1,10 +1,10 @@
 package usecase.signup;
 
+import entity.IdGenerator;
 import entity.Money;
 import entity.User;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import usecase.shared.IdGenerator;
 import usecase.shared.PasswordHasher;
 
 /**

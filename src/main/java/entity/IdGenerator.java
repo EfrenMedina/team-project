@@ -1,4 +1,4 @@
-package usecase.shared;
+package entity;
 
 /**
  * Creates unique ids for new things such as users, accounts and journal entries.
@@ -6,6 +6,9 @@ package usecase.shared;
  * <p>Use cases ask this interface for ids instead of creating them directly, so tests can
  * use a generator that returns predictable ids ("user-1", "account-1", ...) and check them
  * exactly. The app uses a generator that returns random UUIDs.
+ *
+ * <p>It lives in {@code entity} because entities such as {@code Account} also create ids, and
+ * entities can't depend on use cases. SCRUM-20 (PR #14) adds the same interface here.
  */
 public interface IdGenerator {
 

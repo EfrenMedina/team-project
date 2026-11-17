@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import entity.IdGenerator;
 import entity.Money;
 import entity.User;
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import usecase.shared.IdGenerator;
 import usecase.shared.PasswordHasher;
 
 class SignupInteractorTest {
