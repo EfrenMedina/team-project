@@ -44,6 +44,9 @@ public class SignupView extends JPanel implements PropertyChangeListener {
   final JLabel errorLabel = new JLabel(" ");
   final JLabel successLabel = new JLabel(" ");
 
+  /** The screen's state; the view records the typed username in it before each attempt. */
+  private final SignupViewModel viewModel;
+
   /** Where clicks are sent; set by the app shell after the use case is built. */
   private SignupController signupController;
 
@@ -54,7 +57,7 @@ public class SignupView extends JPanel implements PropertyChangeListener {
    * @throws NullPointerException if {@code viewModel} is null
    */
   public SignupView(SignupViewModel viewModel) {
-    Objects.requireNonNull(viewModel, "viewModel");
+    this.viewModel = Objects.requireNonNull(viewModel, "viewModel");
     viewModel.addPropertyChangeListener(this);
 
     setLayout(new GridBagLayout());
@@ -121,11 +124,13 @@ public class SignupView extends JPanel implements PropertyChangeListener {
     if (signupController == null) {
       return;
     }
+    String username = usernameField.getText();
+    // Record what was typed, so a failed attempt redraws with this username, not an old one.
+    viewModel.setState(new SignupState(username, null, null, null));
     char[] password = passwordField.getPassword();
     char[] repeatPassword = repeatPasswordField.getPassword();
     try {
-      signupController.execute(
-          usernameField.getText(), new String(password), new String(repeatPassword));
+      signupController.execute(username, new String(password), new String(repeatPassword));
     } finally {
       // Don't leave the passwords in memory or on screen after the attempt.
       Arrays.fill(password, '\0');

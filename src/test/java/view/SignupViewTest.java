@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import interfaceadapter.signup.SignupController;
+import interfaceadapter.signup.SignupPresenter;
 import interfaceadapter.signup.SignupState;
 import interfaceadapter.signup.SignupViewModel;
 import java.util.ArrayList;
@@ -40,6 +41,24 @@ class SignupViewTest {
     assertEquals(List.of(new SignupInputData("alice", "hunter222", "hunter222")), received);
     assertEquals(0, view.passwordField.getPassword().length);
     assertEquals(0, view.repeatPasswordField.getPassword().length);
+  }
+
+  @Test
+  void createAccount_failsAfterEarlierAttempt_keepsNewlyTypedUsername() {
+    // Inputs: a use case that always fails, reported through the real presenter
+    SignupPresenter presenter = new SignupPresenter(viewModel);
+    view.setSignupController(
+        new SignupController(input -> presenter.prepareFailView("That username is taken.")));
+    view.usernameField.setText("bob");
+    view.createAccountButton.doClick();
+    view.usernameField.setText("Bob");
+
+    // Action
+    view.createAccountButton.doClick();
+
+    // Assertion
+    assertEquals("Bob", view.usernameField.getText());
+    assertEquals("! That username is taken.", view.errorLabel.getText());
   }
 
   @Test
