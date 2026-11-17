@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import dataaccess.InMemorySessionHolder;
 import dataaccess.InMemoryUserDataAccessObject;
 import dataaccess.Pbkdf2PasswordHasher;
+import entity.IdGenerator;
 import interfaceadapter.ClearedOnLogout;
 import interfaceadapter.login.LoginController;
 import interfaceadapter.login.LoginPresenter;
@@ -13,17 +14,21 @@ import interfaceadapter.login.LoginState;
 import interfaceadapter.login.LoginViewModel;
 import interfaceadapter.logout.LogoutController;
 import interfaceadapter.logout.LogoutPresenter;
+import interfaceadapter.signup.SignupController;
+import interfaceadapter.signup.SignupPresenter;
+import interfaceadapter.signup.SignupViewModel;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import usecase.login.AfterLoginStep;
 import usecase.login.LoginInteractor;
 import usecase.logout.LogoutInteractor;
 import usecase.shared.PasswordHasher;
-import usecase.signup.SignupInputData;
 import usecase.signup.SignupInteractor;
-import usecase.signup.SignupOutputBoundary;
-import usecase.signup.SignupOutputData;
 
 /**
  * Signs a user up, then logs in and out through the real controllers, interactors, presenters
@@ -53,8 +58,12 @@ class LoginLogoutFlowTest {
     logoutController =
         new LogoutController(new LogoutInteractor(session, new LogoutPresenter(screens)));
 
-    new SignupInteractor(users, new IgnoringSignupPresenter(), hasher, () -> "user-1")
-        .execute(new SignupInputData("Alice", PASSWORD, PASSWORD));
+    AtomicInteger lastId = new AtomicInteger();
+    IdGenerator ids = () -> "id-" + lastId.incrementAndGet();
+    Clock clock = Clock.fixed(Instant.parse("2026-11-17T14:30:00Z"), ZoneOffset.UTC);
+    SignupPresenter signupPresenter = new SignupPresenter(new SignupViewModel());
+    new SignupController(new SignupInteractor(users, signupPresenter, hasher, ids, clock))
+        .execute("Alice", PASSWORD, PASSWORD);
   }
 
   @Test
@@ -64,7 +73,7 @@ class LoginLogoutFlowTest {
 
     // Assertion
     assertEquals(new LoginState("Alice", null, "Alice"), loginViewModel.getState());
-    assertEquals("user-1", session.currentUser().orElseThrow().id());
+    assertEquals("id-1", session.currentUser().orElseThrow().id());
   }
 
   @Test
@@ -91,13 +100,5 @@ class LoginLogoutFlowTest {
     // Assertion
     assertTrue(session.currentUser().isEmpty());
     assertEquals(LoginState.EMPTY, loginViewModel.getState());
-  }
-
-  private static class IgnoringSignupPresenter implements SignupOutputBoundary {
-    @Override
-    public void prepareSuccessView(SignupOutputData outputData) {}
-
-    @Override
-    public void prepareFailView(String error) {}
   }
 }

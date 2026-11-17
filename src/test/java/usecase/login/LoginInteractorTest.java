@@ -7,7 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import dataaccess.InMemorySessionHolder;
 import dataaccess.InMemoryUserDataAccessObject;
+import entity.Account;
+import entity.JournalEntryFactory;
+import entity.Money;
 import entity.User;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,7 @@ import usecase.shared.PasswordHasher;
 class LoginInteractorTest {
 
   private static final String PASSWORD = "hunter222";
+  private static final Instant NOW = Instant.parse("2026-11-17T14:30:00Z");
 
   private InMemoryUserDataAccessObject dataAccess;
   private InMemorySessionHolder session;
@@ -40,8 +45,8 @@ class LoginInteractorTest {
     interactor = new LoginInteractor(dataAccess, presenter, hasher, session, afterLoginStep);
 
     alice = new User("user-1", "Alice", hasher.hash(PASSWORD));
-    dataAccess.saveNewUser(alice);
-    dataAccess.saveNewUser(new User("user-2", "bob", hasher.hash("bobs-password")));
+    save(alice);
+    save(new User("user-2", "bob", hasher.hash("bobs-password")));
   }
 
   // ---- Success ----
@@ -192,6 +197,16 @@ class LoginInteractorTest {
   }
 
   // ---- Helpers ----
+
+  /** Saves a user with an account and an opening deposit, the way sign-up does. */
+  private void save(User user) {
+    String accountId = "acc-" + user.id();
+    dataAccess.saveNewUser(
+        user,
+        new Account(accountId, user.id()),
+        JournalEntryFactory.forOpeningDeposit(
+            "entry-" + user.id(), accountId, NOW, Money.of("100000.00")));
+  }
 
   /** Checks that login failed with this message, started no session and ran no step. */
   private void assertFailedWith(String expectedError) {

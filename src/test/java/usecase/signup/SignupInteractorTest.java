@@ -6,8 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import entity.Account;
+import entity.IdGenerator;
+import entity.JournalEntry;
+import entity.LedgerAccount;
+import entity.LedgerBalance;
 import entity.Money;
 import entity.User;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -17,11 +25,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import usecase.shared.IdGenerator;
 import usecase.shared.PasswordHasher;
 
 class SignupInteractorTest {
 
+  private static final Instant NOW = Instant.parse("2026-11-17T14:30:00Z");
   private static final String PASSWORD = "hunter222";
   private static final String LONGEST_PASSWORD =
       "abcdefghijklmnopqrstuvwxyz" + "abcdefghijklmnopqrstuvwxyz" + "abcdefghijkl";
@@ -30,6 +38,7 @@ class SignupInteractorTest {
   private FakeUserDataAccess dataAccess;
   private FakeSignupPresenter presenter;
   private FakePasswordHasher hasher;
+  private Clock clock;
   private SignupInteractor interactor;
 
   @BeforeEach
@@ -37,7 +46,8 @@ class SignupInteractorTest {
     dataAccess = new FakeUserDataAccess();
     presenter = new FakeSignupPresenter();
     hasher = new FakePasswordHasher();
-    interactor = new SignupInteractor(dataAccess, presenter, hasher, new SequentialIds());
+    clock = Clock.fixed(NOW, ZoneOffset.UTC);
+    interactor = new SignupInteractor(dataAccess, presenter, hasher, new SequentialIds(), clock);
   }
 
   // ---- Success ----
@@ -53,10 +63,43 @@ class SignupInteractorTest {
     // Assertion
     assertEquals(1, dataAccess.saved.size());
     User saved = dataAccess.saved.get(0);
-    assertEquals("user-1", saved.id());
+    assertEquals("id-1", saved.id());
     assertEquals("alice", saved.username());
     assertEquals(new SignupOutputData("alice", Money.of("100000.00")), presenter.success);
     assertNull(presenter.error);
+  }
+
+  @Test
+  void execute_validInput_savesAccountOwnedByTheNewUser() {
+    // Inputs
+    SignupInputData input = new SignupInputData("alice", PASSWORD, PASSWORD);
+
+    // Action
+    interactor.execute(input);
+
+    // Assertion
+    Account account = dataAccess.savedAccount;
+    assertEquals("id-2", account.getId());
+    assertEquals("id-1", account.getUserId());
+  }
+
+  @Test
+  void execute_validInput_savesOpeningDepositOfHundredThousandInCash() {
+    // Inputs
+    SignupInputData input = new SignupInputData("alice", PASSWORD, PASSWORD);
+
+    // Action
+    interactor.execute(input);
+
+    // Assertion
+    JournalEntry deposit = dataAccess.savedDeposit;
+    assertEquals("id-3", deposit.id());
+    assertEquals("id-2", deposit.accountId());
+    assertEquals(NOW, deposit.postedAt());
+    List<JournalEntry> entries = List.of(deposit);
+    assertEquals(Money.of("100000.00"), LedgerBalance.balanceOf(LedgerAccount.CASH, entries));
+    assertEquals(Money.of("100000.00"),
+        LedgerBalance.balanceOf(LedgerAccount.CONTRIBUTED_CAPITAL, entries));
   }
 
   @Test
@@ -213,13 +256,15 @@ class SignupInteractorTest {
 
     // Action / Assertion
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(null, presenter, hasher, ids));
+        () -> new SignupInteractor(null, presenter, hasher, ids, clock));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, null, hasher, ids));
+        () -> new SignupInteractor(dataAccess, null, hasher, ids, clock));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, presenter, null, ids));
+        () -> new SignupInteractor(dataAccess, presenter, null, ids, clock));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, presenter, hasher, null));
+        () -> new SignupInteractor(dataAccess, presenter, hasher, null, clock));
+    assertThrows(NullPointerException.class,
+        () -> new SignupInteractor(dataAccess, presenter, hasher, ids, null));
   }
 
   /** Checks that sign-up failed with this message, saved nothing and never hashed. */
@@ -227,15 +272,19 @@ class SignupInteractorTest {
     assertEquals(expectedError, presenter.error);
     assertNull(presenter.success);
     assertTrue(dataAccess.saved.isEmpty());
+    assertNull(dataAccess.savedAccount);
+    assertNull(dataAccess.savedDeposit);
     assertNull(hasher.lastRawPassword);
   }
 
   // ---- Test doubles ----
 
-  /** Records saved users; a username counts as taken if it is in takenUsernames. */
+  /** Records what was saved; a username counts as taken if it is in takenUsernames. */
   private static class FakeUserDataAccess implements SignupUserDataAccessInterface {
     final List<String> takenUsernames = new ArrayList<>();
     final List<User> saved = new ArrayList<>();
+    Account savedAccount;
+    JournalEntry savedDeposit;
 
     @Override
     public boolean existsByUsername(String username) {
@@ -243,8 +292,10 @@ class SignupInteractorTest {
     }
 
     @Override
-    public void saveNewUser(User user) {
+    public void saveNewUser(User user, Account account, JournalEntry openingDeposit) {
       saved.add(user);
+      savedAccount = account;
+      savedDeposit = openingDeposit;
     }
   }
 
@@ -281,13 +332,13 @@ class SignupInteractorTest {
     }
   }
 
-  /** Returns "user-1", "user-2", ... so tests can predict ids. */
+  /** Returns "id-1", "id-2", ... so tests can predict ids. */
   private static class SequentialIds implements IdGenerator {
     private int next = 1;
 
     @Override
     public String nextId() {
-      return "user-" + next++;
+      return "id-" + next++;
     }
   }
 }

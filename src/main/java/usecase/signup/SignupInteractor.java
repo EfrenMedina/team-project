@@ -1,10 +1,17 @@
 package usecase.signup;
 
+import entity.Account;
+import entity.IdGenerator;
+import entity.JournalEntry;
+import entity.JournalEntryFactory;
+import entity.LedgerAccount;
+import entity.LedgerBalance;
 import entity.Money;
 import entity.User;
+import java.time.Clock;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import usecase.shared.IdGenerator;
 import usecase.shared.PasswordHasher;
 
 /**
@@ -18,23 +25,24 @@ import usecase.shared.PasswordHasher;
  *   <li>the username is not taken (ignoring case).
  * </ol>
  *
- * <p>If every rule passes, the password is hashed, the user is saved and the presenter is
- * told the account starts with $100,000.00. If any rule fails, nothing is saved.
+ * <p>If every rule passes, the password is hashed and the user is saved together with a new
+ * account and an opening deposit of $100,000.00. The presenter is told the account's cash,
+ * as calculated from the ledger. If any rule fails, nothing is saved.
  */
 public class SignupInteractor implements SignupInputBoundary {
 
   /** Shown when the username has the wrong length or characters. */
   public static final String INVALID_USERNAME =
-      "Username must be 3 to 20 letters, digits or underscores.";
+      "Username must be 3 to 20 letters, digits or underscores";
 
   /** Shown when the password is shorter than 8 or longer than 64 characters. */
-  public static final String INVALID_PASSWORD_LENGTH = "Password must be 8 to 64 characters.";
+  public static final String INVALID_PASSWORD_LENGTH = "Password must be 8 to 64 characters";
 
   /** Shown when the password and the repeated password differ. */
-  public static final String PASSWORDS_DONT_MATCH = "Passwords don't match.";
+  public static final String PASSWORDS_DONT_MATCH = "Passwords don't match";
 
   /** Shown when another user already has the username, ignoring case. */
-  public static final String USERNAME_TAKEN = "That username is already taken.";
+  public static final String USERNAME_TAKEN = "That username is already taken";
 
   /** 3 to 20 letters, digits or underscores, and nothing else. */
   private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{3,20}$");
@@ -57,8 +65,11 @@ public class SignupInteractor implements SignupInputBoundary {
   /** Hashes passwords so the plain text is never saved. */
   private final PasswordHasher passwordHasher;
 
-  /** Gives each new user a unique id. */
+  /** Gives ids to the new user, account and journal entry. */
   private final IdGenerator idGenerator;
+
+  /** Gives the time the opening deposit is posted, so tests can fix it. */
+  private final Clock clock;
 
   /**
    * Creates the interactor.
@@ -66,17 +77,20 @@ public class SignupInteractor implements SignupInputBoundary {
    * @param userDataAccess where users are checked and saved
    * @param presenter receives the outcome
    * @param passwordHasher hashes the password before it is saved
-   * @param idGenerator gives the new user's id
+   * @param idGenerator gives ids to the new user, account and journal entry
+   * @param clock gives the time the opening deposit is posted
    */
   public SignupInteractor(
       SignupUserDataAccessInterface userDataAccess,
       SignupOutputBoundary presenter,
       PasswordHasher passwordHasher,
-      IdGenerator idGenerator) {
+      IdGenerator idGenerator,
+      Clock clock) {
     this.userDataAccess = Objects.requireNonNull(userDataAccess, "userDataAccess");
     this.presenter = Objects.requireNonNull(presenter, "presenter");
     this.passwordHasher = Objects.requireNonNull(passwordHasher, "passwordHasher");
     this.idGenerator = Objects.requireNonNull(idGenerator, "idGenerator");
+    this.clock = Objects.requireNonNull(clock, "clock");
   }
 
   /**
@@ -101,9 +115,15 @@ public class SignupInteractor implements SignupInputBoundary {
 
     String passwordHash = passwordHasher.hash(inputData.password());
     User user = new User(idGenerator.nextId(), username, passwordHash);
-    // SCRUM-25: build the Account and opening deposit here and save them with the user.
-    userDataAccess.saveNewUser(user);
-    presenter.prepareSuccessView(new SignupOutputData(username, OPENING_DEPOSIT));
+    String accountId = idGenerator.nextId();
+    Account account = new Account(accountId, user.id());
+    JournalEntry openingDeposit = JournalEntryFactory.forOpeningDeposit(
+        idGenerator.nextId(), accountId, clock.instant(), OPENING_DEPOSIT);
+    userDataAccess.saveNewUser(user, account, openingDeposit);
+
+    // Cash is never stored; it is always calculated from the account's entries.
+    Money cash = LedgerBalance.balanceOf(LedgerAccount.CASH, List.of(openingDeposit));
+    presenter.prepareSuccessView(new SignupOutputData(username, cash));
   }
 
   /**
