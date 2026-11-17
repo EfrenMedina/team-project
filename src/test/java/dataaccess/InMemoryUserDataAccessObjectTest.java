@@ -1,11 +1,13 @@
 package dataaccess;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import entity.User;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class InMemoryUserDataAccessObjectTest {
@@ -65,5 +67,32 @@ class InMemoryUserDataAccessObjectTest {
   void saveNewUser_null_throws() {
     // Action / Assertion
     assertThrows(NullPointerException.class, () -> dataAccess.saveNewUser(null));
+  }
+
+  @Test
+  void findByUsername_noUsers_returnsEmpty() {
+    // Action / Assertion
+    assertTrue(dataAccess.findByUsername("alice").isEmpty());
+  }
+
+  @Test
+  void findByUsername_savedUser_returnsThatUser() {
+    // Inputs
+    User alice = new User("user-1", "alice", "hash");
+    dataAccess.saveNewUser(alice);
+    dataAccess.saveNewUser(new User("user-2", "bob", "hash"));
+
+    // Action / Assertion
+    assertEquals(Optional.of(alice), dataAccess.findByUsername("alice"));
+  }
+
+  @Test
+  void findByUsername_differentCase_returnsUserWithSavedSpelling() {
+    // Inputs
+    User alice = new User("user-1", "Alice", "hash");
+    dataAccess.saveNewUser(alice);
+
+    // Action / Assertion
+    assertEquals(Optional.of(alice), dataAccess.findByUsername("aLiCe"));
   }
 }
