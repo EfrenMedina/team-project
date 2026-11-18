@@ -1,7 +1,7 @@
 package view;
 
-import interfaceadapter.ViewNames;
-import interfaceadapter.navigation.NavigationController;
+import interface_adapter.ViewNames;
+import interface_adapter.navigation.NavigationController;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;

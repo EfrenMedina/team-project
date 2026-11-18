@@ -1,4 +1,4 @@
-package interfaceadapter;
+package interface_adapter;
 
 /** Holds the name of the screen currently on show. The {@code ViewManager} listens to it. */
 public class ViewManagerModel extends ViewModel<String> {

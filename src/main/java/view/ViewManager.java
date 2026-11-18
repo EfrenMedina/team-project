@@ -1,6 +1,6 @@
 package view;
 
-import interfaceadapter.ViewManagerModel;
+import interface_adapter.ViewManagerModel;
 import java.awt.CardLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

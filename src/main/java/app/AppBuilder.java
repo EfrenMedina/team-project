@@ -1,8 +1,8 @@
 package app;
 
-import interfaceadapter.ViewManagerModel;
-import interfaceadapter.ViewNames;
-import interfaceadapter.navigation.NavigationController;
+import interface_adapter.ViewManagerModel;
+import interface_adapter.ViewNames;
+import interface_adapter.navigation.NavigationController;
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.util.List;

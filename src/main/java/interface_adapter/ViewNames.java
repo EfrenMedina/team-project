@@ -1,4 +1,4 @@
-package interfaceadapter;
+package interface_adapter;
 
 /**
  * Card names of every screen. Numbers match the wireframes in {@code docs/wireframes/}.

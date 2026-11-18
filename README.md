@@ -69,7 +69,7 @@ By default the app uses **fake data**: a fake stock gateway and in-memory DAOs, 
 
 ### Adding a screen
 
-`app/AppBuilder` has one `addXView()` method per screen and, once the feature has a use case, one `addXUseCase()` method. To build your feature, change only your own methods there: replace the `PlaceholderView` in your `addXView()` with your real view, add your `addXUseCase()` (pick the fake or real DAO from `config.dataMode()`), and call it from `app/Main`. Screen names live in `interfaceadapter/ViewNames`.
+`app/AppBuilder` has one `addXView()` method per screen and, once the feature has a use case, one `addXUseCase()` method. To build your feature, change only your own methods there: replace the `PlaceholderView` in your `addXView()` with your real view, add your `addXUseCase()` (pick the fake or real DAO from `config.dataMode()`), and call it from `app/Main`. Screen names live in `interface_adapter/ViewNames`.
 
 Offline demo mode: _to be added (SCRUM-43)._
 

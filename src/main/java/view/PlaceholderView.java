@@ -1,6 +1,6 @@
 package view;
 
-import interfaceadapter.navigation.NavigationController;
+import interface_adapter.navigation.NavigationController;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
