@@ -3,8 +3,8 @@ package view;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import interface_adapter.ViewManagerModel;
-import interface_adapter.navigation.NavigationController;
+import interfaceadapter.ViewManagerModel;
+import interfaceadapter.navigation.NavigationController;
 import java.awt.CardLayout;
 import javax.swing.JPanel;
 import org.junit.jupiter.api.Test;

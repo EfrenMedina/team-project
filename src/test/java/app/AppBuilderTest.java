@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import interface_adapter.ViewNames;
+import interfaceadapter.ViewNames;
 import java.awt.Component;
 import java.awt.Container;
 import java.util.ArrayDeque;
