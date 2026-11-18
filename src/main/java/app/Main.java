@@ -1,8 +1,8 @@
 package app;
 
-import com.formdev.flatlaf.FlatDarkLaf;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
+import view.Theme;
 
 /** Starts the Paper Trading App. */
 public class Main {
@@ -14,7 +14,7 @@ public class Main {
    */
   public static void main(String[] args) {
     AppConfig config = AppConfig.load();
-    FlatDarkLaf.setup();
+    Theme.install();
     SwingUtilities.invokeLater(
         () -> {
           JFrame app =

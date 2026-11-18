@@ -69,7 +69,9 @@ By default the app uses **fake data**: a fake stock gateway and in-memory DAOs, 
 
 ### Adding a screen
 
-`app/AppBuilder` has one `addXView()` method per screen and, once the feature has a use case, one `addXUseCase()` method. To build your feature, change only your own methods there: replace the `PlaceholderView` in your `addXView()` with your real view, add your `addXUseCase()` (pick the fake or real DAO from `config.dataMode()`), and call it from `app/Main`. Screen names live in `interface_adapter/ViewNames`.
+`app/AppBuilder` has one `addXView()` method per screen and, once the feature has a use case, one `addXUseCase()` method. To build your feature, change only your own methods there: replace the `PlaceholderView` in your `addXView()` with your real view, add your `addXUseCase()` (pick the fake or real DAO from `config.dataMode()`), and call it from `app/Main`. Screen names live in `interfaceadapter/ViewNames`.
+
+Your view only builds the content to the right of the sidebar; `addScreen()` adds the sidebar for you. Take colours, fonts, buttons and text fields from `view/Theme` (they match `docs/wireframes/`) and use `RoundedPanel` for cards, so every screen looks the same.
 
 Offline demo mode: _to be added (SCRUM-43)._
 

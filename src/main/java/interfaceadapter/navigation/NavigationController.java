@@ -1,6 +1,6 @@
-package interface_adapter.navigation;
+package interfaceadapter.navigation;
 
-import interface_adapter.ViewManagerModel;
+import interfaceadapter.ViewManagerModel;
 
 /**
  * Switches to another screen. Used by plain navigation clicks (sidebar, back links) that have no
@@ -18,7 +18,7 @@ public class NavigationController {
   /**
    * Shows the screen with the given card name.
    *
-   * @param viewName one of the constants in {@link interface_adapter.ViewNames}
+   * @param viewName one of the constants in {@link interfaceadapter.ViewNames}
    */
   public void navigateTo(String viewName) {
     viewManagerModel.setState(viewName);

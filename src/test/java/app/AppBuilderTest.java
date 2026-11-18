@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import interface_adapter.ViewNames;
+import interfaceadapter.ViewNames;
 import java.awt.Component;
 import java.awt.Container;
 import java.util.ArrayDeque;
@@ -61,6 +61,7 @@ class AppBuilderTest {
 
   @Test
   void clickingButtons_fromLogin_reachesEveryScreen() {
+    builder.showFirstScreen();
     Set<String> reached = new HashSet<>();
     Deque<String> toVisit = new ArrayDeque<>(List.of(ViewNames.LOGIN));
     while (!toVisit.isEmpty()) {
