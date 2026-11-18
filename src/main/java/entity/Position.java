@@ -1,98 +1,81 @@
 package entity;
 
-import java.time.Instant;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
- * A single lot: one purchase of a ticker, at one price per share, at one time.
+ * All the shares an account holds in one ticker, with what was paid for them in total.
  *
- * <p>Buying the same ticker twice creates two separate lots. A lot's ticker, cost per share
- * and acquisition time never change. Its quantity only goes down, when shares from this lot
- * are sold.
+ * <p>An account has at most one position per ticker. Buying more of the same ticker adds to
+ * the existing position, so the average cost per share blends every purchase. For example,
+ * buying 10 shares at $100 and 10 at $120 gives 20 shares that cost $2,200, or $110 each.
  *
- * <p>The adjusted cost is the total cost basis of the shares in this lot. It is set from
- * outside and is not yet updated automatically when the quantity changes.
- *
- * <p>Invariant: a lot's id is unique across all lots in the system, in every account. A lot
- * can't check this itself, so whoever creates it must supply an id that hasn't been used.
+ * <p>Selling removes shares at the average cost: the total cost goes down in proportion, so
+ * the average cost per share of the shares left does not change.
  */
 public class Position {
-    private final String id;
     private final String ticker;
-    private final Money costPerShare;
-    private final Instant acquiredAt;
-    private Money costAdjusted;
     private long quantity;
+    private Money totalCost;
 
     /**
-     * Creates a lot for a purchase.
+     * Creates a position from a first purchase.
      *
-     * @param id identifier for this lot, must not be used by any other lot
      * @param ticker symbol of the security bought
      * @param quantity how many shares were bought, must be greater than 0
-     * @param costPerShare price paid per share, must be greater than 0
-     * @param acquiredAt when the shares were bought
-     * @throws IllegalArgumentException if quantity or costPerShare is 0 or less
+     * @param cost total amount paid for those shares, must be greater than 0
+     * @throws IllegalArgumentException if quantity or cost is 0 or less
      */
-    public Position(String id, String ticker, long quantity, Money costPerShare,
-            Instant acquiredAt){
-        this.id = Objects.requireNonNull(id, "id");
+    public Position(String ticker, long quantity, Money cost){
         this.ticker = Objects.requireNonNull(ticker, "ticker");
-        this.costPerShare = Objects.requireNonNull(costPerShare, "costPerShare");
-        this.acquiredAt = Objects.requireNonNull(acquiredAt, "acquiredAt");
-        if (quantity <= 0){
-            throw new IllegalArgumentException("A lot must have a quantity greater than 0.");
-        }
-        if (costPerShare.isZeroOrLess()){
-            throw new IllegalArgumentException("A lot must have a cost per share greater than 0.");
-        }
+        Objects.requireNonNull(cost, "cost");
+        validatePurchase(quantity, cost);
         this.quantity = quantity;
+        this.totalCost = cost;
     }
 
     /**
-     * Sets the adjusted cost basis of the shares in this lot.
+     * Adds bought shares to this position.
      *
-     * @param amount the total adjusted cost
+     * @param amount how many shares were bought, must be greater than 0
+     * @param cost total amount paid for those shares, must be greater than 0
+     * @throws IllegalArgumentException if amount or cost is 0 or less
      */
-    public void setCostAdjusted(Money amount){
-        this.costAdjusted = amount;
+    public void addShares(long amount, Money cost){
+        Objects.requireNonNull(cost, "cost");
+        validatePurchase(amount, cost);
+        this.quantity += amount;
+        this.totalCost = totalCost.add(cost);
     }
 
     /**
-     * Removes sold shares from this lot. Does not change the adjusted cost.
+     * Removes sold shares from this position. The total cost goes down in proportion, so the
+     * average cost per share stays the same (up to rounding to the cent).
      *
      * @param amount how many shares were sold, must be greater than 0
-     * @throws IllegalArgumentException if amount is 0 or less, or more than the shares left
+     * @throws IllegalArgumentException if amount is 0 or less, or more than the shares held
      */
-    // TODO: add cost base adjustment when quantity adjusts.
-    public void reduceQuantity(long amount){
+    public void removeShares(long amount){
         if (amount <= 0){
             throw new IllegalArgumentException("Amount sold must be greater than 0.");
         }
         if (amount > quantity){
-            throw new IllegalArgumentException("Cannot sell " + amount + " shares from a lot of "
+            throw new IllegalArgumentException("Cannot sell " + amount + " shares from a position of "
                     + quantity + ".");
         }
-        this.quantity -= amount;
+        long remaining = quantity - amount;
+        this.totalCost = Money.ofCents(scaleCents(totalCost.toCents(), remaining, quantity));
+        this.quantity = remaining;
     }
 
     /**
-     * Returns whether every share in this lot has been sold.
+     * Returns whether every share in this position has been sold.
      *
      * @return true if the quantity is 0
      */
-    public boolean isClosed(){
+    public boolean isEmpty(){
         return quantity == 0;
-    }
-
-    /**
-     * Returns this lot's identifier.
-     *
-     * @return the lot id
-     */
-    public String getId(){
-        return id;
     }
 
     /**
@@ -105,39 +88,49 @@ public class Position {
     }
 
     /**
-     * Returns how many shares are left in this lot.
+     * Returns how many shares are held.
      *
-     * @return the remaining quantity
+     * @return the quantity
      */
     public long getQuantity(){
         return quantity;
     }
 
     /**
-     * Returns the price paid per share.
+     * Returns the total amount paid for the shares still held.
      *
-     * @return the cost per share
+     * @return the total cost
      */
-    public Money getCostPerShare(){
-        return costPerShare;
+    public Money getTotalCost(){
+        return totalCost;
     }
 
     /**
-     * Returns when the shares in this lot were bought.
+     * Returns the average amount paid per share, rounded to the cent.
      *
-     * @return the acquisition time
+     * @return the average cost per share, or zero if no shares are held
      */
-    public Instant getAcquiredAt(){
-        return acquiredAt;
+    public Money getAverageCost(){
+        if (quantity == 0){
+            return Money.ZERO;
+        }
+        return Money.ofCents(scaleCents(totalCost.toCents(), 1, quantity));
     }
 
-    /**
-     * Returns the adjusted cost basis of the shares in this lot.
-     *
-     * @return the total adjusted cost, or null if it hasn't been set
-     */
-    public Money getCostAdjusted(){
-        return costAdjusted;
+    private static void validatePurchase(long amount, Money cost){
+        if (amount <= 0){
+            throw new IllegalArgumentException("Amount bought must be greater than 0.");
+        }
+        if (cost.isZeroOrLess()){
+            throw new IllegalArgumentException("Cost must be greater than 0.");
+        }
     }
 
+    /** Returns cents * numerator / denominator, rounded to a whole cent. */
+    private static long scaleCents(long cents, long numerator, long denominator){
+        return BigDecimal.valueOf(cents)
+                .multiply(BigDecimal.valueOf(numerator))
+                .divide(BigDecimal.valueOf(denominator), 0, RoundingMode.HALF_EVEN)
+                .longValueExact();
+    }
 }

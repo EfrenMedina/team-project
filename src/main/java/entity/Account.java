@@ -4,16 +4,16 @@ import java.util.*;
 
 
 /**
- * A user's brokerage account and the lots it holds.
+ * A user's brokerage account and the positions it holds.
  *
- * <p>Holdings are stored as individual {@link Position} lots, grouped by ticker. Buying the
- * same ticker more than once adds another lot rather than merging into an existing one, so
- * each purchase keeps its own cost and acquisition time.
+ * <p>The account holds at most one {@link Position} per ticker. Buying a ticker the account
+ * already holds adds the shares and their cost to that position, so its average cost blends
+ * every purchase. Selling every share of a ticker removes its position.
  */
 public class Account {
     private final String id;
     private final String userId;
-    private Map<String, Map<String, Position>> lots; // individual holdings as original objects
+    private final Map<String, Position> positions; // ticker -> position
 
     /**
      * Creates an account with no holdings.
@@ -24,7 +24,7 @@ public class Account {
     public Account(String id, String userId){
         this.id = id;
         this.userId = userId;
-        this.lots = new HashMap<>(new HashMap<>());
+        this.positions = new HashMap<>();
     }
 
     /**
@@ -46,109 +46,89 @@ public class Account {
     }
 
     /**
-     * Adds a position to this account, using the trade parameter.
+     * Adds the shares bought in a trade to this account's position in that ticker, creating
+     * the position if the account doesn't hold the ticker yet.
      *
-     * @param trade The trade record to add a new position from.
+     * @param trade The trade record to add shares from.
      * @return A long representing the updated number of held shares from the traded ticker.
-     * @throws TradeException If an inconsistent trade is passed in.
+     * @throws TradeException If this account is not the trade's buyer.
      */
-    public synchronized Long addPosition(Trade trade, IdGenerator idGenerator){
-        if(trade.buyerId().equals(id)) {
-            var pos = new Position(idGenerator.nextId(), trade.ticker(),
-                    trade.quantity(), trade.pricePerShare(), trade.soldAt());
+    public synchronized Long addPosition(Trade trade){
+        if (!trade.buyerId().equals(id)) {
+            throw new TradeException(TradeException.Reason.BUYER_ID_DOESNT_MATCH,
+                    "Buyer's id differs from buyerId in trade");
+        }
 
-            if (lots.get(trade.ticker()) == null){
-                lots.put(trade.ticker(), new HashMap<>(Map.of(idGenerator.nextId(), pos)));
-            }
-            else {
-                lots.get(trade.ticker()).put(idGenerator.nextId(), pos);
-            }
-
-            return getTotalTicketHeld(trade.ticker());
+        Position pos = positions.get(trade.ticker());
+        if (pos == null){
+            positions.put(trade.ticker(), new Position(trade.ticker(), trade.quantity(), trade.total()));
         }
         else {
-            throw new TradeException(TradeException.Reason.BUYER_ID_DOESNT_MATCH,
-                    "Buyer's id differs from sellerId in trade");
+            pos.addShares(trade.quantity(), trade.total());
         }
+
+        return getTotalTicketHeld(trade.ticker());
     }
 
     /**
-     * Removes a quantity of sold position following the details in trade.
-     * @return The updated number of held positions of the same ticker.
-     * @throws TradeException If an inconsistent trade is passed in.
+     * Removes the shares sold in a trade from this account's position in that ticker. If no
+     * shares are left, the position is removed.
+     *
+     * @param trade The trade record to remove shares by.
+     * @return The updated number of held shares of the same ticker.
+     * @throws TradeException If the account doesn't hold the ticker or doesn't hold enough shares.
      */
     public synchronized Long popPosition(Trade trade){
-        if(trade.sellerId().equals(id)) {
+        Position pos = positions.get(trade.ticker());
 
-            // prevent getPositionFromLotId from failing
-            if (lots.get(trade.ticker()) == null){
-                throw new TradeException(TradeException.Reason.SELLER_DOES_NOT_HOLD_TICKER,
-                        "Seller does not hold any positions with ticker.");
-            }
-
-            Position pos = getPositionFromLotId(trade.lotId(), trade.ticker());
-
-            if (pos == null) {
-                throw new TradeException(TradeException.Reason.LOTID_INCONSISTENCY,
-                        "Seller does not hold position with lotId from trade.");
-            }
-            if (!pos.getId().equals(trade.lotId())) {
-                throw new TradeException(TradeException.Reason.LOTID_INCONSISTENCY,
-                        "Seller's lotId differs from the trade lotId");
-            }
-            if (!pos.getTicker().equals(trade.ticker())){
-                throw new TradeException(TradeException.Reason.LOTID_INCONSISTENCY,
-                        "Seller's lotId's ticker differs from trade ticker");
-            }
-            if (pos.getQuantity() < trade.quantity()){
-                throw new TradeException(TradeException.Reason.SELL_LESS_THAN_HELD, "Seller does not hold enough" +
-                        "stocks");
-            }
-
-            pos.reduceQuantity(trade.quantity());
-            return getTotalTicketHeld(pos.getTicker());
-            // make sure account's money is updated somehow
+        if (pos == null){
+            throw new TradeException(TradeException.Reason.SELLER_DOES_NOT_HOLD_TICKER,
+                    "Seller does not hold any positions with ticker.");
         }
-        else {
-            throw new TradeException(TradeException.Reason.SELLER_ID_DOESNT_MATCH,
-                    "Seller's id differs from sellerId in trade");
+        if (pos.getQuantity() < trade.quantity()){
+            throw new TradeException(TradeException.Reason.SELL_LESS_THAN_HELD,
+                    "Seller does not hold enough stocks");
         }
+
+        pos.removeShares(trade.quantity());
+        if (pos.isEmpty()){
+            positions.remove(trade.ticker());
+        }
+        return getTotalTicketHeld(trade.ticker());
+        // make sure account's money is updated somehow
     }
 
     /**
-     * Returns a reference to the held position of the account sharing the same lotId. Throws exception if lotId does not exist
-     * @param lotId the lotId of a existing held position.
-     * @return A reference to the held position with the same lotId.
-     */
-    private Position getPositionFromLotId(String lotId, String ticker) {
-        return lots.get(ticker).get(lotId);
-    }
-
-    /**
-     * Returns how many shares of a ticker this account holds, summed across all its lots.
+     * Returns this account's position in a ticker.
      *
      * @param ticker symbol of the security
-     * @return the total quantity held, or 0 if the account holds none
+     * @return the position, or null if the account holds none of that ticker
      */
-    public Long getTotalTicketHeld(String ticker){
-        long tot = 0;
-        var ids = lots.getOrDefault(ticker, Map.of());
-        for (var position : ids.values()){
-            tot += position.getQuantity();
-        }
-        return tot;
+    public synchronized Position getPosition(String ticker){
+        return positions.get(ticker);
     }
 
     /**
-     * Returns the total shares held for every ticker in this account.
+     * Returns how many shares of a ticker this account holds.
      *
-     * @return a new map from ticker to total quantity held
+     * @param ticker symbol of the security
+     * @return the quantity held, or 0 if the account holds none
      */
-    public Map<String, Long> getAllPositions(){
-        Map<String, Long> positions = new HashMap<>();
-        for (var ticker : lots.keySet()){
-            positions.put(ticker, getTotalTicketHeld(ticker));
+    public synchronized Long getTotalTicketHeld(String ticker){
+        Position pos = positions.get(ticker);
+        return pos == null ? 0L : pos.getQuantity();
+    }
+
+    /**
+     * Returns the shares held for every ticker in this account.
+     *
+     * @return a new map from ticker to quantity held
+     */
+    public synchronized Map<String, Long> getAllPositions(){
+        Map<String, Long> result = new HashMap<>();
+        for (var pos : positions.values()){
+            result.put(pos.getTicker(), pos.getQuantity());
         }
-        return positions;
+        return result;
     }
 }
