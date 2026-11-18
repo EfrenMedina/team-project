@@ -49,12 +49,27 @@ Requirements: JDK 17 and Maven 3.9+.
 mvn clean verify
 ```
 
-1. Create `config.properties` in the project root with your API keys:
+Run the app (opens on the Login screen):
+
+```bash
+mvn compile exec:java
+```
+
+Or in IntelliJ, run `app.Main` (`src/main/java/app/Main.java`).
+
+By default the app uses **fake data**: a fake stock gateway and in-memory DAOs, so it needs no API keys and keeps nothing between runs. To use the real APIs and the SQLite database:
+
+1. Create `config.properties` in the project root:
    ```properties
+   data.mode=real
    finnhub.api.key=YOUR_KEY
    twelvedata.api.key=YOUR_KEY
    ```
-2. Run the app: _main class and command to be added with the app shell (SCRUM-23)._
+2. Run as above. To switch for one run without editing the file, pass `-Ddata.mode=real` (or `fake`), e.g. `mvn compile exec:java -Ddata.mode=real`. The command line wins over the file.
+
+### Adding a screen
+
+`app/AppBuilder` has one `addXView()` method per screen and, once the feature has a use case, one `addXUseCase()` method. To build your feature, change only your own methods there: replace the `PlaceholderView` in your `addXView()` with your real view, add your `addXUseCase()` (pick the fake or real DAO from `config.dataMode()`), and call it from `app/Main`. Screen names live in `interface_adapter/ViewNames`.
 
 Offline demo mode: _to be added (SCRUM-43)._
 
