@@ -155,7 +155,7 @@ that broke the rule. Only production code is checked; tests may use anything.
 |---|---|---|
 | `entity` only uses Java | `entity`, `java.*` | everything else, including `usecase` |
 | `usecase` only uses entities and Java | `usecase`, `entity`, `java.*` | `interfaceadapter`, `dataaccess`, `view`, libraries |
-| Neither `entity` nor `usecase` touches the UI, network, JSON, database or files | | Swing, AWT, OkHttp, org.json, `java.sql`, `java.io` |
+| Neither `entity` nor `usecase` touches the UI, network, JSON, database or files | | Swing, AWT, OkHttp, `java.net`, org.json, `java.sql`, `java.io`, `java.nio.file` |
 | `view` never uses `dataaccess` | | any `dataaccess` class (screens go through controllers and use cases) |
 
 The `view` rule passes while there are no screens yet. If a new feature needs something a rule

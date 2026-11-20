@@ -51,7 +51,14 @@ class ArchitectureTest {
           .should()
           .dependOnClassesThat()
           .resideInAnyPackage(
-              "javax.swing..", "java.awt..", "okhttp3..", "org.json..", "java.sql..", "java.io..");
+              "javax.swing..",
+              "java.awt..",
+              "okhttp3..",
+              "java.net..",
+              "org.json..",
+              "java.sql..",
+              "java.io..",
+              "java.nio.file..");
 
   /**
    * Screens reach data only through controllers and use cases. Allowed to be empty until the
