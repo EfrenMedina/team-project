@@ -1,6 +1,7 @@
 package dataaccess;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,6 +12,7 @@ import entity.JournalEntryFactory;
 import entity.Money;
 import entity.User;
 import java.time.Instant;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class InMemoryUserDataAccessObjectTest {
@@ -84,6 +86,33 @@ class InMemoryUserDataAccessObjectTest {
     assertThrows(NullPointerException.class,
         () -> dataAccess.saveNewUser(alice, account, null));
     assertFalse(dataAccess.existsByUsername("alice"));
+  }
+
+  @Test
+  void findByUsername_noUsers_returnsEmpty() {
+    // Action / Assertion
+    assertTrue(dataAccess.findByUsername("alice").isEmpty());
+  }
+
+  @Test
+  void findByUsername_savedUser_returnsThatUser() {
+    // Inputs
+    User alice = new User("user-1", "alice", "hash");
+    save(alice);
+    save(new User("user-2", "bob", "hash"));
+
+    // Action / Assertion
+    assertEquals(Optional.of(alice), dataAccess.findByUsername("alice"));
+  }
+
+  @Test
+  void findByUsername_differentCase_returnsUserWithSavedSpelling() {
+    // Inputs
+    User alice = new User("user-1", "Alice", "hash");
+    save(alice);
+
+    // Action / Assertion
+    assertEquals(Optional.of(alice), dataAccess.findByUsername("aLiCe"));
   }
 
   /** Saves a user with an account and an opening deposit made from their id. */
