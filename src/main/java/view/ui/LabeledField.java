@@ -29,14 +29,29 @@ public class LabeledField extends JPanel {
         Theme.SPACE_S, 0, Theme.SPACE_S, 0));
   }
 
+  /**
+   * Returns the entered text without surrounding spaces.
+   *
+   * @return the trimmed text
+   */
   public String getText() {
     return field.getText().trim();
   }
 
-  public void setText(String t) {
-    field.setText(t);
+  /**
+   * Sets the field's text.
+   *
+   * @param text the new text
+   */
+  public void setText(String text) {
+    field.setText(text);
   }
 
+  /**
+   * Returns the underlying text field.
+   *
+   * @return the text field
+   */
   public JTextField getField() {
     return field;
   }
