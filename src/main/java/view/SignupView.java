@@ -18,12 +18,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import view.ui.Theme;
 
 /**
  * The Sign-up card from wireframe 01: username, password and confirm-password fields, a
- * "Create account" button and a line for errors. It sends what the user typed to the
- * {@link SignupController} and redraws whenever the {@link SignupViewModel} changes.
+ * "Create account" button, and an error line under each field. It sends what the user typed
+ * to the {@link SignupController} and redraws whenever the {@link SignupViewModel} changes.
+ *
+ * <p>The use case runs on a background thread, because hashing the password takes a moment
+ * and would otherwise freeze the window. Redraws always happen on the Swing thread.
  *
  * <p>After a successful sign-up it shows a welcome line with the starting cash. Moving on to
  * the Dashboard is the app shell's job (SCRUM-23); this screen doesn't switch screens itself.
@@ -36,8 +41,13 @@ public class SignupView extends JPanel implements PropertyChangeListener {
   final JPasswordField passwordField = new JPasswordField(20);
   final JPasswordField repeatPasswordField = new JPasswordField(20);
   final JButton createAccountButton = new JButton("Create account");
-  final JLabel errorLabel = new JLabel(" ");
+  final JLabel usernameErrorLabel = new JLabel(" ");
+  final JLabel passwordErrorLabel = new JLabel(" ");
+  final JLabel repeatPasswordErrorLabel = new JLabel(" ");
   final JLabel successLabel = new JLabel(" ");
+
+  /** The most recent sign-up attempt running in the background, so tests can wait for it. */
+  SwingWorker<Void, Void> lastAttempt;
 
   /** The screen's state; the view records the typed username in it before each attempt. */
   private final SignupViewModel viewModel;
@@ -60,7 +70,9 @@ public class SignupView extends JPanel implements PropertyChangeListener {
 
     JLabel title = new JLabel("Sign up");
     title.setFont(title.getFont().deriveFont(Font.BOLD, 18f));
-    errorLabel.setForeground(Theme.LOSS);
+    usernameErrorLabel.setForeground(Theme.LOSS);
+    passwordErrorLabel.setForeground(Theme.LOSS);
+    repeatPasswordErrorLabel.setForeground(Theme.LOSS);
     successLabel.setForeground(Theme.GAIN);
     JLabel hint = new JLabel("At least 8 characters.");
     hint.setFont(hint.getFont().deriveFont(11f));
@@ -73,11 +85,13 @@ public class SignupView extends JPanel implements PropertyChangeListener {
     addRow(title, row++, 16);
     addRow(new JLabel("Username"), row++, 4);
     addRow(usernameField, row++, 4);
-    addRow(errorLabel, row++, 12);
+    addRow(usernameErrorLabel, row++, 8);
     addRow(new JLabel("Password"), row++, 4);
-    addRow(passwordField, row++, 12);
+    addRow(passwordField, row++, 4);
+    addRow(passwordErrorLabel, row++, 8);
     addRow(new JLabel("Confirm password"), row++, 4);
     addRow(repeatPasswordField, row++, 4);
+    addRow(repeatPasswordErrorLabel, row++, 0);
     addRow(hint, row++, 16);
     addRow(createAccountButton, row++, 12);
     addRow(startingCash, row++, 4);
@@ -107,41 +121,66 @@ public class SignupView extends JPanel implements PropertyChangeListener {
   }
 
   /**
-   * Redraws the screen when the view model's state changes.
+   * Redraws the screen when the view model's state changes. The presenter may run on the
+   * background thread, so the redraw is moved onto the Swing thread when needed.
    *
    * @param event the change; its new value is the new {@link SignupState}
    */
   @Override
   public void propertyChange(PropertyChangeEvent event) {
-    if (SignupViewModel.STATE_PROPERTY.equals(event.getPropertyName())) {
-      showState((SignupState) event.getNewValue());
+    if (!SignupViewModel.STATE_PROPERTY.equals(event.getPropertyName())) {
+      return;
+    }
+    SignupState state = (SignupState) event.getNewValue();
+    if (SwingUtilities.isEventDispatchThread()) {
+      showState(state);
+    } else {
+      SwingUtilities.invokeLater(() -> showState(state));
     }
   }
 
-  /** Sends what the user typed to the controller, then wipes the passwords from the form. */
+  /**
+   * Sends what the user typed to the controller on a background thread, and wipes the
+   * passwords from the form straight away. The button is disabled until the attempt ends, so
+   * a double click can't sign up twice.
+   */
   private void submit() {
     if (signupController == null) {
       return;
     }
     String username = usernameField.getText();
     // Record what was typed, so a failed attempt redraws with this username, not an old one.
-    viewModel.setState(new SignupState(username, null, null, null));
-    char[] password = passwordField.getPassword();
-    char[] repeatPassword = repeatPasswordField.getPassword();
-    try {
-      signupController.execute(username, new String(password), new String(repeatPassword));
-    } finally {
-      // Don't leave the passwords in memory or on screen after the attempt.
-      Arrays.fill(password, '\0');
-      Arrays.fill(repeatPassword, '\0');
-      passwordField.setText("");
-      repeatPasswordField.setText("");
-    }
+    viewModel.setState(new SignupState(username, null, null, null, null));
+    char[] passwordChars = passwordField.getPassword();
+    char[] repeatChars = repeatPasswordField.getPassword();
+    final String password = new String(passwordChars);
+    final String repeatPassword = new String(repeatChars);
+    // Don't leave the passwords in the form or in these arrays after the attempt starts.
+    Arrays.fill(passwordChars, '\0');
+    Arrays.fill(repeatChars, '\0');
+    passwordField.setText("");
+    repeatPasswordField.setText("");
+
+    SignupController controller = signupController;
+    createAccountButton.setEnabled(false);
+    lastAttempt = new SwingWorker<>() {
+      @Override
+      protected Void doInBackground() {
+        controller.execute(username, password, repeatPassword);
+        return null;
+      }
+
+      @Override
+      protected void done() {
+        createAccountButton.setEnabled(true);
+      }
+    };
+    lastAttempt.execute();
   }
 
   /**
-   * Shows a state: the typed username, the error (if any) and the welcome line (if sign-up
-   * succeeded).
+   * Shows a state: the typed username, the error under the field it is about (with that field
+   * outlined), and the welcome line if sign-up succeeded.
    *
    * @param state what to show
    */
@@ -149,15 +188,32 @@ public class SignupView extends JPanel implements PropertyChangeListener {
     if (!usernameField.getText().equals(state.username())) {
       usernameField.setText(state.username());
     }
-    boolean hasError = state.error() != null;
-    errorLabel.setText(hasError ? "! " + state.error() : " ");
-    usernameField.putClientProperty("JComponent.outline", hasError ? Theme.LOSS : null);
+    showError(state, SignupState.Field.USERNAME, usernameField, usernameErrorLabel);
+    showError(state, SignupState.Field.PASSWORD, passwordField, passwordErrorLabel);
+    showError(
+        state, SignupState.Field.REPEAT_PASSWORD, repeatPasswordField, repeatPasswordErrorLabel);
 
     boolean signedUp = state.signedUpUsername() != null;
     successLabel.setText(signedUp
         ? "Welcome, " + state.signedUpUsername() + ". Your account starts with "
             + state.startingCash() + "."
         : " ");
+  }
+
+  /**
+   * Shows the state's error under one field and outlines that field, or clears both if the
+   * error is about another field.
+   *
+   * @param state the state to show
+   * @param field which field this is
+   * @param input the field's text box
+   * @param errorLabel the label under it
+   */
+  private static void showError(
+      SignupState state, SignupState.Field field, JTextField input, JLabel errorLabel) {
+    boolean here = state.error() != null && state.errorField() == field;
+    errorLabel.setText(here ? "! " + state.error() : " ");
+    input.putClientProperty("JComponent.outline", here ? Theme.LOSS : null);
   }
 
   /**

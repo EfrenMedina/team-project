@@ -119,7 +119,13 @@ public class SignupInteractor implements SignupInputBoundary {
     Account account = new Account(accountId, user.id());
     JournalEntry openingDeposit = JournalEntryFactory.forOpeningDeposit(
         idGenerator.nextId(), accountId, clock.instant(), OPENING_DEPOSIT);
-    userDataAccess.saveNewUser(user, account, openingDeposit);
+    try {
+      userDataAccess.saveNewUser(user, account, openingDeposit);
+    } catch (IllegalStateException e) {
+      // Someone else took the name between the check above and the save.
+      presenter.prepareFailView(USERNAME_TAKEN);
+      return;
+    }
 
     // Cash is never stored; it is always calculated from the account's entries.
     Money cash = LedgerBalance.balanceOf(LedgerAccount.CASH, List.of(openingDeposit));

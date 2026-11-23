@@ -24,7 +24,7 @@ public interface PasswordHasher {
    * @return the hash to store; never equal to or containing {@code rawPassword}
    * @throws NullPointerException if {@code rawPassword} is null
    */
-  String hash(String rawPassword);
+  String hash(String rawPassword) throws NullPointerException;
 
   /**
    * Checks whether a password is the one that produced a stored hash.
@@ -35,5 +35,6 @@ public interface PasswordHasher {
    * @throws NullPointerException if either argument is null
    * @throws IllegalArgumentException if {@code storedHash} was not produced by this hasher
    */
-  boolean matches(String rawPassword, String storedHash);
+  boolean matches(String rawPassword, String storedHash)
+      throws NullPointerException, IllegalArgumentException;
 }

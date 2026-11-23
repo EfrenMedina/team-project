@@ -220,6 +220,21 @@ class SignupInteractorTest {
     assertFailedWith(SignupInteractor.USERNAME_TAKEN);
   }
 
+  @Test
+  void execute_usernameTakenBetweenCheckAndSave_presentsTakenAndNoSuccess() {
+    // Inputs: the name looks free, but another sign-up saves it first
+    dataAccess.clashOnSave = true;
+    SignupInputData input = new SignupInputData("alice", PASSWORD, PASSWORD);
+
+    // Action
+    interactor.execute(input);
+
+    // Assertion
+    assertEquals(SignupInteractor.USERNAME_TAKEN, presenter.error);
+    assertNull(presenter.success);
+    assertTrue(dataAccess.saved.isEmpty());
+  }
+
   // ---- Rule order ----
 
   @Test
@@ -279,12 +294,16 @@ class SignupInteractorTest {
 
   // ---- Test doubles ----
 
-  /** Records what was saved; a username counts as taken if it is in takenUsernames. */
+  /**
+   * Records what was saved; a username counts as taken if it is in takenUsernames. With
+   * clashOnSave, saving throws as if another sign-up took the name after the check.
+   */
   private static class FakeUserDataAccess implements SignupUserDataAccessInterface {
     final List<String> takenUsernames = new ArrayList<>();
     final List<User> saved = new ArrayList<>();
     Account savedAccount;
     JournalEntry savedDeposit;
+    boolean clashOnSave;
 
     @Override
     public boolean existsByUsername(String username) {
@@ -293,6 +312,9 @@ class SignupInteractorTest {
 
     @Override
     public void saveNewUser(User user, Account account, JournalEntry openingDeposit) {
+      if (clashOnSave) {
+        throw new IllegalStateException("Username already taken: " + user.username());
+      }
       saved.add(user);
       savedAccount = account;
       savedDeposit = openingDeposit;

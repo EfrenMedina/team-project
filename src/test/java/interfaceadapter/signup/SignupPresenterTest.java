@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import usecase.signup.SignupInteractor;
 import usecase.signup.SignupOutputData;
 
@@ -29,14 +31,16 @@ class SignupPresenterTest {
   @Test
   void prepareSuccessView_hundredThousand_showsUserAndFormattedCash() {
     // Inputs
-    viewModel.setState(new SignupState("alice", SignupInteractor.USERNAME_TAKEN, null, null));
+    viewModel.setState(new SignupState(
+        "alice", SignupInteractor.USERNAME_TAKEN, SignupState.Field.USERNAME, null, null));
     events.clear();
 
     // Action
     presenter.prepareSuccessView(new SignupOutputData("alice", Money.of("100000.00")));
 
     // Assertion
-    assertEquals(new SignupState("alice", null, "alice", "$100,000.00"), viewModel.getState());
+    assertEquals(
+        new SignupState("alice", null, null, "alice", "$100,000.00"), viewModel.getState());
     assertEquals(1, events.size());
     assertEquals(SignupViewModel.STATE_PROPERTY, events.get(0).getPropertyName());
   }
@@ -44,16 +48,38 @@ class SignupPresenterTest {
   @Test
   void prepareFailView_usernameTaken_showsErrorAndKeepsTypedUsername() {
     // Inputs
-    viewModel.setState(new SignupState("alice", null, null, null));
+    viewModel.setState(new SignupState("alice", null, null, null, null));
     events.clear();
 
     // Action
     presenter.prepareFailView(SignupInteractor.USERNAME_TAKEN);
 
     // Assertion
-    assertEquals(new SignupState("alice", SignupInteractor.USERNAME_TAKEN, null, null),
+    assertEquals(
+        new SignupState(
+            "alice", SignupInteractor.USERNAME_TAKEN, SignupState.Field.USERNAME, null, null),
         viewModel.getState());
     assertEquals(1, events.size());
+  }
+
+  @ParameterizedTest
+  @CsvSource({
+      "INVALID_USERNAME, USERNAME",
+      "USERNAME_TAKEN, USERNAME",
+      "INVALID_PASSWORD_LENGTH, PASSWORD",
+      "PASSWORDS_DONT_MATCH, REPEAT_PASSWORD"
+  })
+  void prepareFailView_eachRule_putsErrorUnderItsField(String constant, SignupState.Field field)
+      throws ReflectiveOperationException {
+    // Inputs
+    String error = (String) SignupInteractor.class.getField(constant).get(null);
+
+    // Action
+    presenter.prepareFailView(error);
+
+    // Assertion
+    assertEquals(error, viewModel.getState().error());
+    assertEquals(field, viewModel.getState().errorField());
   }
 
   @Test

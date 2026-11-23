@@ -5,12 +5,14 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
+import usecase.signup.SignupInteractor;
 import usecase.signup.SignupOutputBoundary;
 import usecase.signup.SignupOutputData;
 
 /**
  * Turns the sign-up use case's result into what the Sign-up screen shows: the error message
- * on failure, or the new username and their formatted starting cash on success.
+ * under the field it is about on failure, or the new username and their formatted starting
+ * cash on success.
  */
 public class SignupPresenter implements SignupOutputBoundary {
 
@@ -36,18 +38,37 @@ public class SignupPresenter implements SignupOutputBoundary {
   public void prepareSuccessView(SignupOutputData outputData) {
     String username = outputData.username();
     signupViewModel.setState(
-        new SignupState(username, null, username, format(outputData.startingCash())));
+        new SignupState(username, null, null, username, format(outputData.startingCash())));
   }
 
   /**
-   * Shows the error and keeps the username the user typed, so they can correct it.
+   * Shows the error under the field it is about, and keeps the username the user typed so
+   * they can correct it.
    *
    * @param error the message to show
    */
   @Override
   public void prepareFailView(String error) {
     SignupState current = signupViewModel.getState();
-    signupViewModel.setState(new SignupState(current.username(), error, null, null));
+    signupViewModel.setState(
+        new SignupState(current.username(), error, fieldFor(error), null, null));
+  }
+
+  /**
+   * Returns the field an error message is about: password errors go under the password
+   * boxes, and everything else (an invalid or taken username) under the username box.
+   *
+   * @param error a message from {@link SignupInteractor}
+   * @return the field to show it under
+   */
+  private static SignupState.Field fieldFor(String error) {
+    if (SignupInteractor.INVALID_PASSWORD_LENGTH.equals(error)) {
+      return SignupState.Field.PASSWORD;
+    }
+    if (SignupInteractor.PASSWORDS_DONT_MATCH.equals(error)) {
+      return SignupState.Field.REPEAT_PASSWORD;
+    }
+    return SignupState.Field.USERNAME;
   }
 
   /**

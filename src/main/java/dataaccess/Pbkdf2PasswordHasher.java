@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import javax.crypto.SecretKeyFactory;
@@ -123,14 +124,17 @@ public final class Pbkdf2PasswordHasher implements PasswordHasher {
    * @return the 256-bit hash
    */
   private static byte[] derive(String rawPassword, byte[] salt, int iterations) {
-    PBEKeySpec spec = new PBEKeySpec(rawPassword.toCharArray(), salt, iterations, KEY_BITS);
+    char[] password = rawPassword.toCharArray();
+    PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, KEY_BITS);
     try {
       return SecretKeyFactory.getInstance(ALGORITHM).generateSecret(spec).getEncoded();
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       // Every Java 17 runtime has PBKDF2, so this only happens if the JDK is broken.
       throw new IllegalStateException("PBKDF2 is not available", e);
     } finally {
+      // PBEKeySpec keeps its own copy, so wipe both: clearPassword() only clears the spec's.
       spec.clearPassword();
+      Arrays.fill(password, '\0');
     }
   }
 }
