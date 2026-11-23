@@ -174,6 +174,31 @@ forbids, put that code in an outer layer behind an interface the use case owns (
 - Test both the success path and each failure path of every interactor.
 - Tests must not call the real stock APIs; use `FakeStockDataGateway`. Provider parsing tests (SCRUM-31) can use the recorded JSON in `src/main/resources/fake-stock-data/` and `src/test/resources/api/`.
 
+## UI conventions
+
+All screens live in `view/` and use the shared kit in `view/ui/`.
+
+- Call `Theme.install()` once at startup, before creating any Swing component.
+- Use only `Theme` colours, fonts and `SPACE_*` constants. No hard-coded values.
+- Use `Formatters` for all money and percentages. Gains and losses always show `+` or `−`, never colour alone.
+- Use `LabeledField`, `PrimaryButton` and `AppTable` instead of raw Swing components.
+- For P&L columns call `table.useSignedColumns(...)` so they are right-aligned and coloured green or red.
+- Run anything slow (network or database) in a `SwingWorker`, never on the UI thread.
+- Screens only call controllers and read view models. No business logic in `view/`.
+- Run `view.ui.DemoScreen` from IntelliJ to see every component.
+- The theme is dark. Green (`Theme.GAIN`, also the primary button) is the only accent, and red (`Theme.LOSS`) marks losses. Don't add other accent colors.
+- When placing a button beside a `LabeledField`, add a blank label above it so the bottoms line up (see `DemoScreen`).
+
+### Prompt for generating a screen
+
+> Write a Swing `JPanel` for [screen name] in package `view`.
+> Use `view.ui.Theme`, `Formatters`, `LabeledField`, `PrimaryButton` and `AppTable`.
+> Do not hard-code colors, fonts or sizes; use `Theme` constants.
+> Show money with `Formatters.money`, and signed values with `Formatters.signedMoney` and `Formatters.percent`.
+> Call `useSignedColumns` on profit and loss columns.
+> Read data from the view model and send user actions to the controller. Do not put business logic in the view.
+> > Follow the project's Checkstyle rules: 2-space indentation, Javadoc on every class and public method, no star imports.
+
 ## Wireframes
 
 Every screen is sketched in [`docs/wireframes/`](docs/wireframes/), with a table of screens, user stories and owners. Start with the navigation map:
