@@ -126,12 +126,29 @@ Requirements: JDK 17 and Maven 3.9+.
 mvn clean verify
 ```
 
-1. Create `config.properties` in the project root with your API keys:
+Run the app (opens on the Login screen):
+
+```bash
+mvn compile exec:java
+```
+
+Or in IntelliJ, run `app.Main` (`src/main/java/app/Main.java`).
+
+By default the app uses **fake data**: a fake stock gateway and in-memory DAOs, so it needs no API keys and keeps nothing between runs. To use the real APIs and the SQLite database:
+
+1. Create `config.properties` in the project root:
    ```properties
+   data.mode=real
    finnhub.api.key=YOUR_KEY
    twelvedata.api.key=YOUR_KEY
    ```
-2. Run the app: _main class and command to be added with the app shell (SCRUM-23)._
+2. Run as above. To switch for one run without editing the file, pass `-Ddata.mode=real` (or `fake`), e.g. `mvn compile exec:java -Ddata.mode=real`. The command line wins over the file.
+
+### Adding a screen
+
+`app/AppBuilder` has one `addXView()` method per screen and, once the feature has a use case, one `addXUseCase()` method. To build your feature, change only your own methods there: replace the `PlaceholderView` in your `addXView()` with your real view, add your `addXUseCase()` (pick the fake or real DAO from `config.dataMode()`), and call it from `app/Main`. Screen names live in `interfaceadapter/ViewNames`.
+
+Your view only builds the content to the right of the sidebar; `addScreen()` adds the sidebar for you. Take colours, fonts, buttons and text fields from `view/Theme` (they match `docs/wireframes/`) and use `RoundedPanel` for cards, so every screen looks the same.
 
 Offline demo mode: _to be added (SCRUM-43)._
 
@@ -145,6 +162,23 @@ Offline demo mode: _to be added (SCRUM-43)._
 - Money is stored as integer cents; never use `double` or `REAL` for money. Every movement of cash is a
   journal entry; [`docs/ledger.md`](docs/ledger.md) explains debits, credits and the ledger classes.
 
+### Architecture rules
+
+[`ArchitectureTest`](src/test/java/architecture/ArchitectureTest.java) checks these on every build,
+so breaking one fails `mvn clean verify` and CI. The failure names each class and the dependency
+that broke the rule. Only production code is checked; tests may use anything.
+
+| Rule | Allowed | Not allowed |
+|---|---|---|
+| `entity` only uses Java | `entity`, `java.*` | everything else, including `usecase` |
+| `usecase` only uses entities and Java | `usecase`, `entity`, `java.*` | `interfaceadapter`, `dataaccess`, `view`, libraries |
+| Neither `entity` nor `usecase` touches the UI, network, JSON, database or files | | Swing, AWT, OkHttp, `java.net`, org.json, `java.sql`, `java.io`, `java.nio.file` |
+| `view` never uses `dataaccess` | | any `dataaccess` class (screens go through controllers and use cases) |
+
+The `view` rule passes while there are no screens yet. If a new feature needs something a rule
+forbids, put that code in an outer layer behind an interface the use case owns (like
+`StockDataGateway`), rather than changing the rule.
+
 ## How we test
 
 - Run everything with `mvn clean verify`. This runs the JUnit 5 tests, writes the coverage report to `target/site/jacoco/index.html` and the style report to `target/checkstyle-result.xml`. CI uploads both on every PR.
@@ -156,6 +190,31 @@ Offline demo mode: _to be added (SCRUM-43)._
 - Name tests after behaviour: `action_condition_expectedResult`, e.g. `placeOrder_zeroQuantity_presentsErrorAndSavesNothing`.
 - Test both the success path and each failure path of every interactor.
 - Tests must not call the real stock APIs; use `FakeStockDataGateway`. Provider parsing tests (SCRUM-31) can use the recorded JSON in `src/main/resources/fake-stock-data/` and `src/test/resources/api/`.
+
+## UI conventions
+
+All screens live in `view/` and use the shared kit in `view/ui/`.
+
+- Call `Theme.install()` once at startup, before creating any Swing component.
+- Use only `Theme` colours, fonts and `SPACE_*` constants. No hard-coded values.
+- Use `Formatters` for all money and percentages. Gains and losses always show `+` or `−`, never colour alone.
+- Use `LabeledField`, `PrimaryButton` and `AppTable` instead of raw Swing components.
+- For P&L columns call `table.useSignedColumns(...)` so they are right-aligned and coloured green or red.
+- Run anything slow (network or database) in a `SwingWorker`, never on the UI thread.
+- Screens only call controllers and read view models. No business logic in `view/`.
+- Run `view.ui.DemoScreen` from IntelliJ to see every component.
+- The theme is dark. Green (`Theme.GAIN`, also the primary button) is the only accent, and red (`Theme.LOSS`) marks losses. Don't add other accent colors.
+- When placing a button beside a `LabeledField`, add a blank label above it so the bottoms line up (see `DemoScreen`).
+
+### Prompt for generating a screen
+
+> Write a Swing `JPanel` for [screen name] in package `view`.
+> Use `view.ui.Theme`, `Formatters`, `LabeledField`, `PrimaryButton` and `AppTable`.
+> Do not hard-code colors, fonts or sizes; use `Theme` constants.
+> Show money with `Formatters.money`, and signed values with `Formatters.signedMoney` and `Formatters.percent`.
+> Call `useSignedColumns` on profit and loss columns.
+> Read data from the view model and send user actions to the controller. Do not put business logic in the view.
+> > Follow the project's Checkstyle rules: 2-space indentation, Javadoc on every class and public method, no star imports.
 
 ## Wireframes
 

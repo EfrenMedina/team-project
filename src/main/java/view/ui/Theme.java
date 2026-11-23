@@ -1,31 +1,45 @@
 package view.ui;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLaf;
 import java.awt.Color;
+import java.awt.Font;
+import java.util.Map;
+import javax.swing.UIManager;
 
-/**
- * The app's shared colours, so every screen looks like the same app.
- *
- * <p>Placeholder written for SCRUM-26 with only the colours the Sign-up screen uses, taken
- * from the wireframes. SCRUM-22 (PR #17) owns this class: its version has the same constant
- * names plus fonts, spacing and the look-and-feel setup, and replaces this one when merged.
- */
+/** Colours, fonts and spacing shared by every screen. */
 public final class Theme {
-
-  /** The main action colour, for buttons such as "Create account". */
-  public static final Color PRIMARY = new Color(0x3DD68C);
-
-  /** Text on a {@link #PRIMARY} background. */
-  public static final Color PRIMARY_TEXT = new Color(0x0E1013);
-
-  /** Gains and success messages. */
-  public static final Color GAIN = new Color(0x3DD68C);
-
-  /** Losses and error messages. */
-  public static final Color LOSS = new Color(0xFF6A4D);
-
-  /** Secondary text, such as hints. */
+  public static final Color BACKGROUND = new Color(0x0E1013);
+  public static final Color SURFACE = new Color(0x16191E);
+  public static final Color TEXT = new Color(0xECEEF1);
   public static final Color MUTED = new Color(0x9AA1AB);
+  public static final Color GAIN = new Color(0x3DD68C);
+  public static final Color LOSS = new Color(0xFF6A4D);
+  public static final Color PRIMARY = GAIN;
+  public static final Color PRIMARY_TEXT = BACKGROUND;
 
-  private Theme() {
+  public static final Font TITLE = new Font(Font.SANS_SERIF, Font.BOLD, 22);
+  public static final Font BODY = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
+  public static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+
+  public static final int SPACE_S = 4;
+  public static final int SPACE_M = 8;
+  public static final int SPACE_L = 16;
+  public static final int SPACE_XL = 24;
+
+  private Theme() {}
+
+  /** Call once at startup, before creating any Swing component. */
+  public static void install() {
+    FlatLaf.setGlobalExtraDefaults(Map.of(
+      "@background", "#0E1013",
+      "@foreground", "#ECEEF1",
+      "@accentColor", "#3DD68C"));
+    FlatDarkLaf.setup();
+    UIManager.put("Table.background", SURFACE);
+    UIManager.put("TextField.background", SURFACE);
+    UIManager.put("Button.arc", 8);
+    UIManager.put("Component.arc", 8);
+    UIManager.put("defaultFont", BODY);
   }
 }
