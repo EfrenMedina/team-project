@@ -16,6 +16,7 @@ import interfaceadapter.logout.LogoutController;
 import interfaceadapter.logout.LogoutPresenter;
 import interfaceadapter.signup.SignupController;
 import interfaceadapter.signup.SignupPresenter;
+import interfaceadapter.signup.SignupState;
 import interfaceadapter.signup.SignupViewModel;
 import java.time.Clock;
 import java.time.Instant;
@@ -32,7 +33,7 @@ import usecase.signup.SignupInteractor;
 
 /**
  * Signs a user up, then logs in and out through the real controllers, interactors, presenters
- * and in-memory storage, the way the app will wire them. Only the screens are missing.
+ * and in-memory storage, the way the app will wire them.
  */
 class LoginLogoutFlowTest {
 
@@ -40,28 +41,30 @@ class LoginLogoutFlowTest {
 
   private InMemorySessionHolder session;
   private LoginViewModel loginViewModel;
+  private SignupViewModel signupViewModel;
   private LoginController loginController;
   private LogoutController logoutController;
 
   @BeforeEach
   void setUp() {
-    InMemoryUserDataAccessObject users = new InMemoryUserDataAccessObject();
-    PasswordHasher hasher = new Pbkdf2PasswordHasher(1);
     session = new InMemorySessionHolder();
     loginViewModel = new LoginViewModel();
+    signupViewModel = new SignupViewModel();
+    InMemoryUserDataAccessObject users = new InMemoryUserDataAccessObject();
+    PasswordHasher hasher = new Pbkdf2PasswordHasher(1);
 
     loginController =
         new LoginController(
             new LoginInteractor(
                 users, new LoginPresenter(loginViewModel), hasher, session, AfterLoginStep.NONE));
-    List<ClearedOnLogout> screens = List.of(loginViewModel);
+    List<ClearedOnLogout> screens = List.of(loginViewModel, signupViewModel);
     logoutController =
         new LogoutController(new LogoutInteractor(session, new LogoutPresenter(screens)));
 
     AtomicInteger lastId = new AtomicInteger();
     IdGenerator ids = () -> "id-" + lastId.incrementAndGet();
     Clock clock = Clock.fixed(Instant.parse("2026-11-17T14:30:00Z"), ZoneOffset.UTC);
-    SignupPresenter signupPresenter = new SignupPresenter(new SignupViewModel());
+    SignupPresenter signupPresenter = new SignupPresenter(signupViewModel);
     new SignupController(new SignupInteractor(users, signupPresenter, hasher, ids, clock))
         .execute("Alice", PASSWORD, PASSWORD);
   }
@@ -100,5 +103,6 @@ class LoginLogoutFlowTest {
     // Assertion
     assertTrue(session.currentUser().isEmpty());
     assertEquals(LoginState.EMPTY, loginViewModel.getState());
+    assertEquals(SignupState.EMPTY, signupViewModel.getState());
   }
 }

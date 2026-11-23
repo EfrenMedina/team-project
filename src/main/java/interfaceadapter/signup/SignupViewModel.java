@@ -1,5 +1,6 @@
 package interfaceadapter.signup;
 
+import interfaceadapter.ClearedOnLogout;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Objects;
@@ -13,7 +14,7 @@ import java.util.Objects;
  * successful sign-up also belongs to the app shell: it can listen for a state whose
  * {@code signedUpUsername} is set.
  */
-public class SignupViewModel {
+public class SignupViewModel implements ClearedOnLogout {
 
   /** The name of the Sign-up screen, used to switch to it. */
   public static final String VIEW_NAME = "sign up";
@@ -55,5 +56,11 @@ public class SignupViewModel {
    */
   public void addPropertyChangeListener(PropertyChangeListener listener) {
     support.addPropertyChangeListener(listener);
+  }
+
+  /** Empties the form and removes the welcome line of the user who signed up. */
+  @Override
+  public void clearUserData() {
+    setState(SignupState.EMPTY);
   }
 }

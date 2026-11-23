@@ -83,6 +83,19 @@ class SignupPresenterTest {
   }
 
   @Test
+  void clearUserData_afterSignup_returnsToEmptyForm() {
+    // Inputs
+    presenter.prepareSuccessView(new SignupOutputData("alice", Money.of("100000.00")));
+
+    // Action
+    viewModel.clearUserData();
+
+    // Assertion
+    assertEquals(SignupState.EMPTY, viewModel.getState());
+    assertEquals(SignupState.EMPTY, events.get(events.size() - 1).getNewValue());
+  }
+
+  @Test
   void newViewModel_startsWithEmptyForm() {
     // Action / Assertion
     assertEquals(SignupState.EMPTY, new SignupViewModel().getState());
