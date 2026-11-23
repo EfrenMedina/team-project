@@ -5,13 +5,18 @@ import java.util.Objects;
 import java.util.Optional;
 import usecase.shared.PasswordHasher;
 import usecase.shared.SessionHolder;
+import usecase.shared.StockDataUnavailableException;
 
 /**
  * Logs a user in with the username and password they typed.
  *
  * <p>If the username exists (ignoring case) and the password matches its stored hash, the
- * user's session starts, the {@link AfterLoginStep} runs and the presenter is told who logged
- * in. Otherwise the presenter gets an error and no session starts.
+ * user's session starts, the presenter is told who logged in, and then the
+ * {@link AfterLoginStep} runs. Otherwise the presenter gets an error and no session starts.
+ *
+ * <p>The step runs last so that login is already complete whatever happens in it. If it can't
+ * get prices it throws {@link StockDataUnavailableException}, which is caught here: the user
+ * stays logged in and the step's work waits for the next price refresh.
  *
  * <p>A wrong password and an unknown username give the same message on purpose, so the login
  * form can't be used to find out which usernames exist.
@@ -86,8 +91,13 @@ public class LoginInteractor implements LoginInputBoundary {
 
     User user = found.get();
     sessionHolder.start(user);
-    afterLoginStep.afterLogin(user);
     presenter.prepareSuccessView(new LoginOutputData(user.username()));
+    try {
+      afterLoginStep.afterLogin(user);
+    } catch (StockDataUnavailableException e) {
+      // Login has already succeeded. Open orders are checked again after the next price
+      // refresh (SCRUM-41), so there's nothing to undo or report here.
+    }
   }
 
   /**

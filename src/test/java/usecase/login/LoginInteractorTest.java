@@ -21,6 +21,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import usecase.shared.PasswordHasher;
+import usecase.shared.StockDataUnavailableException;
 
 class LoginInteractorTest {
 
@@ -63,13 +64,43 @@ class LoginInteractorTest {
   }
 
   @Test
-  void execute_correctCredentials_runsAfterLoginStepOnceForThatUser() {
+  void execute_correctCredentials_runsAfterLoginStepOnceAfterLoginSucceeds() {
     // Action
     interactor.execute(new LoginInputData("Alice", PASSWORD));
 
     // Assertion
     assertEquals(List.of(alice), afterLoginStep.users);
     assertTrue(afterLoginStep.sessionWasStartedFirst);
+    assertTrue(afterLoginStep.successWasPresentedFirst);
+  }
+
+  @Test
+  void execute_afterLoginStepCantGetPrices_stillLogsIn() {
+    // Inputs
+    afterLoginStep.failure = new StockDataUnavailableException("quotes are down");
+
+    // Action
+    interactor.execute(new LoginInputData("Alice", PASSWORD));
+
+    // Assertion
+    assertEquals(new LoginOutputData("Alice"), presenter.success);
+    assertNull(presenter.error);
+    assertEquals(Optional.of(alice), session.currentUser());
+    assertEquals(List.of(alice), afterLoginStep.users);
+  }
+
+  @Test
+  void execute_afterLoginStepHasBug_throwsButLoginIsAlreadyComplete() {
+    // Inputs
+    afterLoginStep.failure = new IllegalStateException("bug in the step");
+    LoginInputData input = new LoginInputData("Alice", PASSWORD);
+
+    // Action
+    assertThrows(IllegalStateException.class, () -> interactor.execute(input));
+
+    // Assertion: the bug isn't hidden, but the user isn't left half logged in either
+    assertEquals(new LoginOutputData("Alice"), presenter.success);
+    assertEquals(Optional.of(alice), session.currentUser());
   }
 
   @Test
@@ -231,15 +262,27 @@ class LoginInteractorTest {
     }
   }
 
-  /** Records who it ran for, and whether their session had already started at that point. */
+  /**
+   * Records who it ran for, and whether login had already fully succeeded at that point. Can be
+   * told to fail afterwards.
+   */
   private class RecordingAfterLoginStep implements AfterLoginStep {
     private final List<User> users = new ArrayList<>();
     private boolean sessionWasStartedFirst;
+    private boolean successWasPresentedFirst;
+    private Exception failure;
 
     @Override
-    public void afterLogin(User user) {
+    public void afterLogin(User user) throws StockDataUnavailableException {
       users.add(user);
       sessionWasStartedFirst = session.currentUser().equals(Optional.of(user));
+      successWasPresentedFirst = presenter.success != null;
+      if (failure instanceof StockDataUnavailableException unavailable) {
+        throw unavailable;
+      }
+      if (failure instanceof RuntimeException bug) {
+        throw bug;
+      }
     }
   }
 
