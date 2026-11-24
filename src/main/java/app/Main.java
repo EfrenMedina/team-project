@@ -29,6 +29,9 @@ public class Main {
                   .addTradeHistoryView()
                   .addAccountStatementView()
                   .addRealizedGainsView()
+                  .addSignupUseCase()
+                  .addLoginUseCase()
+                  .addLogoutUseCase()
                   .build();
           app.setVisible(true);
         });

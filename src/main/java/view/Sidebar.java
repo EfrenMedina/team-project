@@ -1,6 +1,6 @@
 package view;
 
-import interfaceadapter.ViewNames;
+import interfaceadapter.LoggedInViewModel;
 import interfaceadapter.navigation.NavigationController;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -8,6 +8,8 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.Locale;
+import java.util.Objects;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,6 +18,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 /**
  * The left-hand navigation shown on every screen after login (216px wide): logo, menu with the
@@ -23,17 +26,32 @@ import javax.swing.SwingConstants;
  */
 public class Sidebar extends JPanel {
 
-  /** Shown until US-02 passes in the signed-in user. */
-  static final String PLACEHOLDER_USER = "guest";
+  /** The logged-in user's name. */
+  final JLabel usernameLabel = Theme.bodyBold(" ");
+
+  /** The "Log out" link. */
+  final JButton logoutButton = Theme.linkButton("Log out", 12, false, Theme.MUTED);
+
+  /** The round badge with the user's initial. */
+  private final Avatar avatar = new Avatar();
 
   /**
-   * Builds the sidebar.
+   * Builds the sidebar and starts showing whoever is logged in.
    *
    * @param selected the item to highlight
    * @param navigation used to switch screens when an item is clicked
+   * @param loggedInViewModel holds the logged-in username, shown at the bottom
+   * @param logOut run when "Log out" is clicked, normally the logout controller
+   * @throws NullPointerException if {@code loggedInViewModel} or {@code logOut} is null
    */
-  public Sidebar(SidebarItem selected, NavigationController navigation) {
+  public Sidebar(
+      SidebarItem selected,
+      NavigationController navigation,
+      LoggedInViewModel loggedInViewModel,
+      Runnable logOut) {
     super(new BorderLayout());
+    Objects.requireNonNull(loggedInViewModel, "loggedInViewModel");
+    Objects.requireNonNull(logOut, "logOut");
     setBackground(Theme.SURFACE);
     setPreferredSize(new Dimension(216, 800));
     setBorder(BorderFactory.createEmptyBorder(28, 16, 24, 16));
@@ -49,7 +67,28 @@ public class Sidebar extends JPanel {
       top.add(Box.createVerticalStrut(6));
     }
     add(top, BorderLayout.NORTH);
-    add(userFooter(navigation), BorderLayout.SOUTH);
+    add(userFooter(), BorderLayout.SOUTH);
+
+    logoutButton.addActionListener(e -> logOut.run());
+    showUser(loggedInViewModel.getState());
+    loggedInViewModel.addPropertyChangeListener(event -> {
+      String username = (String) event.getNewValue();
+      if (SwingUtilities.isEventDispatchThread()) {
+        showUser(username);
+      } else {
+        SwingUtilities.invokeLater(() -> showUser(username));
+      }
+    });
+  }
+
+  /**
+   * Shows a user's name and initial at the bottom of the sidebar.
+   *
+   * @param username the logged-in username, or {@code ""} for nobody
+   */
+  private void showUser(String username) {
+    usernameLabel.setText(username.isEmpty() ? " " : username);
+    avatar.setUsername(username);
   }
 
   private static JButton menuButton(
@@ -66,19 +105,16 @@ public class Sidebar extends JPanel {
     return button;
   }
 
-  private static JPanel userFooter(NavigationController navigation) {
+  private JPanel userFooter() {
     JPanel footer = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
     footer.setOpaque(false);
     footer.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
-    footer.add(new Avatar(PLACEHOLDER_USER));
+    footer.add(avatar);
     footer.add(Box.createHorizontalStrut(10));
 
     JPanel nameAndLogout = column();
-    nameAndLogout.add(Theme.bodyBold(PLACEHOLDER_USER));
-    // US-02 replaces this with the logout use case.
-    JButton logout = Theme.linkButton("Log out", 12, false, Theme.MUTED);
-    logout.addActionListener(e -> navigation.navigateTo(ViewNames.LOGIN));
-    nameAndLogout.add(logout);
+    nameAndLogout.add(usernameLabel);
+    nameAndLogout.add(logoutButton);
     footer.add(nameAndLogout);
     return footer;
   }
@@ -94,15 +130,19 @@ public class Sidebar extends JPanel {
   /** Round badge with the user's initials. */
   private static final class Avatar extends JComponent {
 
-    private final JLabel initials;
+    private final JLabel initials = Theme.label("?", 12, true, Theme.MUTED);
 
-    Avatar(String username) {
+    Avatar() {
       setPreferredSize(new Dimension(32, 32));
       setLayout(new BorderLayout());
-      String letters = username.isEmpty() ? "?" : username.substring(0, 1).toUpperCase();
-      initials = Theme.label(letters, 12, true, Theme.MUTED);
       initials.setHorizontalAlignment(SwingConstants.CENTER);
       add(initials, BorderLayout.CENTER);
+    }
+
+    /** Shows the first letter of a username, or "?" for nobody. */
+    void setUsername(String username) {
+      initials.setText(
+          username.isEmpty() ? "?" : username.substring(0, 1).toUpperCase(Locale.ROOT));
     }
 
     @Override

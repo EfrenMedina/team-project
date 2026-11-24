@@ -3,6 +3,9 @@ package interfaceadapter.login;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import interfaceadapter.LoggedInViewModel;
+import interfaceadapter.ViewManagerModel;
+import interfaceadapter.ViewNames;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +17,20 @@ import usecase.login.LoginOutputData;
 class LoginPresenterTest {
 
   private LoginViewModel viewModel;
+  private LoggedInViewModel loggedIn;
+  private ViewManagerModel viewManager;
   private List<PropertyChangeEvent> events;
   private LoginPresenter presenter;
 
   @BeforeEach
   void setUp() {
     viewModel = new LoginViewModel();
+    loggedIn = new LoggedInViewModel();
+    viewManager = new ViewManagerModel();
+    viewManager.setState(ViewNames.LOGIN);
     events = new ArrayList<>();
     viewModel.addPropertyChangeListener(events::add);
-    presenter = new LoginPresenter(viewModel);
+    presenter = new LoginPresenter(viewModel, loggedIn, viewManager);
   }
 
   @Test
@@ -41,7 +49,22 @@ class LoginPresenterTest {
   }
 
   @Test
-  void prepareFailView_incorrectCredentials_showsErrorAndKeepsTypedUsername() {
+  void prepareSuccessView_any_recordsUserAndShowsDashboard() {
+    // Inputs
+    List<PropertyChangeEvent> screenChanges = new ArrayList<>();
+    viewManager.addPropertyChangeListener(screenChanges::add);
+
+    // Action
+    presenter.prepareSuccessView(new LoginOutputData("Alice"));
+
+    // Assertion
+    assertEquals("Alice", loggedIn.getState());
+    assertEquals(ViewNames.DASHBOARD, viewManager.getState());
+    assertEquals(1, screenChanges.size());
+  }
+
+  @Test
+  void prepareFailView_incorrectCredentials_showsErrorAndStaysOnLogin() {
     // Inputs
     viewModel.setState(new LoginState("alice", null, null));
     events.clear();
@@ -53,6 +76,8 @@ class LoginPresenterTest {
     assertEquals(new LoginState("alice", LoginInteractor.INCORRECT_CREDENTIALS, null),
         viewModel.getState());
     assertEquals(1, events.size());
+    assertEquals("", loggedIn.getState());
+    assertEquals(ViewNames.LOGIN, viewManager.getState());
   }
 
   @Test
@@ -69,9 +94,13 @@ class LoginPresenterTest {
   }
 
   @Test
-  void newViewModel_startsWithEmptyForm() {
+  void newViewModel_startsWithEmptyFormOnLoginScreen() {
+    // Inputs
+    LoginViewModel fresh = new LoginViewModel();
+
     // Action / Assertion
-    assertEquals(LoginState.EMPTY, new LoginViewModel().getState());
+    assertEquals(LoginState.EMPTY, fresh.getState());
+    assertEquals(ViewNames.LOGIN, fresh.getViewName());
   }
 
   @Test
@@ -81,8 +110,13 @@ class LoginPresenterTest {
   }
 
   @Test
-  void constructor_nullViewModel_throws() {
+  void constructor_nullArgument_throws() {
     // Action / Assertion
-    assertThrows(NullPointerException.class, () -> new LoginPresenter(null));
+    assertThrows(NullPointerException.class,
+        () -> new LoginPresenter(null, loggedIn, viewManager));
+    assertThrows(NullPointerException.class,
+        () -> new LoginPresenter(viewModel, null, viewManager));
+    assertThrows(NullPointerException.class,
+        () -> new LoginPresenter(viewModel, loggedIn, null));
   }
 }

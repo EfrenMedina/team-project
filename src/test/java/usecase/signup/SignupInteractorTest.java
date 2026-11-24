@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import dataaccess.InMemorySessionHolder;
 import entity.Account;
 import entity.IdGenerator;
 import entity.JournalEntry;
@@ -39,6 +40,7 @@ class SignupInteractorTest {
   private FakeSignupPresenter presenter;
   private FakePasswordHasher hasher;
   private Clock clock;
+  private InMemorySessionHolder session;
   private SignupInteractor interactor;
 
   @BeforeEach
@@ -47,7 +49,9 @@ class SignupInteractorTest {
     presenter = new FakeSignupPresenter();
     hasher = new FakePasswordHasher();
     clock = Clock.fixed(NOW, ZoneOffset.UTC);
-    interactor = new SignupInteractor(dataAccess, presenter, hasher, new SequentialIds(), clock);
+    session = new InMemorySessionHolder();
+    interactor = new SignupInteractor(
+        dataAccess, presenter, hasher, new SequentialIds(), clock, session);
   }
 
   // ---- Success ----
@@ -67,6 +71,18 @@ class SignupInteractorTest {
     assertEquals("alice", saved.username());
     assertEquals(new SignupOutputData("alice", Money.of("100000.00")), presenter.success);
     assertNull(presenter.error);
+  }
+
+  @Test
+  void execute_validInput_logsTheNewUserIn() {
+    // Inputs
+    SignupInputData input = new SignupInputData("alice", PASSWORD, PASSWORD);
+
+    // Action
+    interactor.execute(input);
+
+    // Assertion
+    assertEquals(dataAccess.saved.get(0), session.currentUser().orElseThrow());
   }
 
   @Test
@@ -233,6 +249,7 @@ class SignupInteractorTest {
     assertEquals(SignupInteractor.USERNAME_TAKEN, presenter.error);
     assertNull(presenter.success);
     assertTrue(dataAccess.saved.isEmpty());
+    assertTrue(session.currentUser().isEmpty());
   }
 
   // ---- Rule order ----
@@ -271,19 +288,22 @@ class SignupInteractorTest {
 
     // Action / Assertion
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(null, presenter, hasher, ids, clock));
+        () -> new SignupInteractor(null, presenter, hasher, ids, clock, session));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, null, hasher, ids, clock));
+        () -> new SignupInteractor(dataAccess, null, hasher, ids, clock, session));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, presenter, null, ids, clock));
+        () -> new SignupInteractor(dataAccess, presenter, null, ids, clock, session));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, presenter, hasher, null, clock));
+        () -> new SignupInteractor(dataAccess, presenter, hasher, null, clock, session));
     assertThrows(NullPointerException.class,
-        () -> new SignupInteractor(dataAccess, presenter, hasher, ids, null));
+        () -> new SignupInteractor(dataAccess, presenter, hasher, ids, null, session));
+    assertThrows(NullPointerException.class,
+        () -> new SignupInteractor(dataAccess, presenter, hasher, ids, clock, null));
   }
 
-  /** Checks that sign-up failed with this message, saved nothing and never hashed. */
+  /** Checks that sign-up failed with this message, saved, hashed and logged in nothing. */
   private void assertFailedWith(String expectedError) {
+    assertTrue(session.currentUser().isEmpty());
     assertEquals(expectedError, presenter.error);
     assertNull(presenter.success);
     assertTrue(dataAccess.saved.isEmpty());

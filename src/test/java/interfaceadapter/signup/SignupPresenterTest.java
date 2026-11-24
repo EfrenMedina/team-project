@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import entity.Money;
+import interfaceadapter.LoggedInViewModel;
+import interfaceadapter.ViewManagerModel;
+import interfaceadapter.ViewNames;
 import java.beans.PropertyChangeEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +20,40 @@ import usecase.signup.SignupOutputData;
 class SignupPresenterTest {
 
   private SignupViewModel viewModel;
+  private LoggedInViewModel loggedIn;
+  private ViewManagerModel viewManager;
   private List<PropertyChangeEvent> events;
   private SignupPresenter presenter;
 
   @BeforeEach
   void setUp() {
     viewModel = new SignupViewModel();
+    loggedIn = new LoggedInViewModel();
+    viewManager = new ViewManagerModel();
+    viewManager.setState(ViewNames.LOGIN);
     events = new ArrayList<>();
     viewModel.addPropertyChangeListener(events::add);
-    presenter = new SignupPresenter(viewModel);
+    presenter = new SignupPresenter(viewModel, loggedIn, viewManager);
+  }
+
+  @Test
+  void prepareSuccessView_any_recordsUserAndShowsDashboard() {
+    // Action
+    presenter.prepareSuccessView(new SignupOutputData("alice", Money.of("100000.00")));
+
+    // Assertion
+    assertEquals("alice", loggedIn.getState());
+    assertEquals(ViewNames.DASHBOARD, viewManager.getState());
+  }
+
+  @Test
+  void prepareFailView_any_staysOnLoginWithNobodyLoggedIn() {
+    // Action
+    presenter.prepareFailView(SignupInteractor.USERNAME_TAKEN);
+
+    // Assertion
+    assertEquals("", loggedIn.getState());
+    assertEquals(ViewNames.LOGIN, viewManager.getState());
   }
 
   @Test
@@ -108,8 +136,13 @@ class SignupPresenterTest {
   }
 
   @Test
-  void constructor_nullViewModel_throws() {
+  void constructor_nullArgument_throws() {
     // Action / Assertion
-    assertThrows(NullPointerException.class, () -> new SignupPresenter(null));
+    assertThrows(NullPointerException.class,
+        () -> new SignupPresenter(null, loggedIn, viewManager));
+    assertThrows(NullPointerException.class,
+        () -> new SignupPresenter(viewModel, null, viewManager));
+    assertThrows(NullPointerException.class,
+        () -> new SignupPresenter(viewModel, loggedIn, null));
   }
 }

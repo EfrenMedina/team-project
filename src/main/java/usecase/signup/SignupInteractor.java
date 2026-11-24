@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 import usecase.shared.PasswordHasher;
+import usecase.shared.SessionHolder;
 
 /**
  * Creates a new user from the sign-up form. The rules are checked in this order, and the
@@ -26,8 +27,9 @@ import usecase.shared.PasswordHasher;
  * </ol>
  *
  * <p>If every rule passes, the password is hashed and the user is saved together with a new
- * account and an opening deposit of $100,000.00. The presenter is told the account's cash,
- * as calculated from the ledger. If any rule fails, nothing is saved.
+ * account and an opening deposit of $100,000.00. The new user's session starts, so they are
+ * logged in, and the presenter is told the account's cash, as calculated from the ledger. If
+ * any rule fails, nothing is saved and no session starts.
  */
 public class SignupInteractor implements SignupInputBoundary {
 
@@ -71,6 +73,9 @@ public class SignupInteractor implements SignupInputBoundary {
   /** Gives the time the opening deposit is posted, so tests can fix it. */
   private final Clock clock;
 
+  /** Logs the new user in once they are saved. */
+  private final SessionHolder sessionHolder;
+
   /**
    * Creates the interactor.
    *
@@ -79,23 +84,27 @@ public class SignupInteractor implements SignupInputBoundary {
    * @param passwordHasher hashes the password before it is saved
    * @param idGenerator gives ids to the new user, account and journal entry
    * @param clock gives the time the opening deposit is posted
+   * @param sessionHolder starts the new user's session, so they are logged in
+   * @throws NullPointerException if any argument is null
    */
   public SignupInteractor(
       SignupUserDataAccessInterface userDataAccess,
       SignupOutputBoundary presenter,
       PasswordHasher passwordHasher,
       IdGenerator idGenerator,
-      Clock clock) {
+      Clock clock,
+      SessionHolder sessionHolder) {
     this.userDataAccess = Objects.requireNonNull(userDataAccess, "userDataAccess");
     this.presenter = Objects.requireNonNull(presenter, "presenter");
     this.passwordHasher = Objects.requireNonNull(passwordHasher, "passwordHasher");
     this.idGenerator = Objects.requireNonNull(idGenerator, "idGenerator");
     this.clock = Objects.requireNonNull(clock, "clock");
+    this.sessionHolder = Objects.requireNonNull(sessionHolder, "sessionHolder");
   }
 
   /**
-   * Checks the input against the sign-up rules and either saves the new user and reports
-   * success, or reports the first rule that failed and saves nothing.
+   * Checks the input against the sign-up rules and either saves the new user, logs them in and
+   * reports success, or reports the first rule that failed and saves nothing.
    *
    * @param inputData what the user typed
    */
@@ -126,6 +135,7 @@ public class SignupInteractor implements SignupInputBoundary {
       presenter.prepareFailView(USERNAME_TAKEN);
       return;
     }
+    sessionHolder.start(user);
 
     // Cash is never stored; it is always calculated from the account's entries.
     Money cash = LedgerBalance.balanceOf(LedgerAccount.CASH, List.of(openingDeposit));

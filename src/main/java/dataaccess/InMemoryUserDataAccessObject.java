@@ -15,7 +15,7 @@ import usecase.signup.SignupUserDataAccessInterface;
 
 /**
  * Keeps users, their accounts and their journal entries in memory, so nothing is saved after
- * the app closes. Used until the SQLite version arrives in SCRUM-27, and in tests, where it
+ * the app closes. Used until the SQLite version arrives in SCRUM-36, and in tests, where it
  * needs no files.
  *
  * <p>Users are stored under their lowercase username, so "Alice" and "alice" count as the

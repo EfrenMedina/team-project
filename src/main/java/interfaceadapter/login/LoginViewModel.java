@@ -1,61 +1,41 @@
 package interfaceadapter.login;
 
 import interfaceadapter.ClearedOnLogout;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import interfaceadapter.ViewModel;
+import interfaceadapter.ViewNames;
 import java.util.Objects;
 
 /**
- * Holds the Login screen's {@link LoginState} and tells the screen when it changes. The
+ * Holds the Log-in form's {@link LoginState} and tells the screen when it changes. The
  * presenters set the state; the screen listens and redraws.
  *
- * <p>When the app shell from SCRUM-23 adds a shared {@code ViewModel} base class, this class
- * should extend it instead of managing its own listeners. Switching screens also belongs to
- * the app shell: it can listen for a state whose {@code loggedInUsername} is set to show the
- * Dashboard, and for one where it goes back to {@code null} to show Login again.
+ * <p>Unlike the base {@link ViewModel}, every {@link #setState} notifies the listeners, so a
+ * presenter can't forget to.
  */
-public class LoginViewModel implements ClearedOnLogout {
+public class LoginViewModel extends ViewModel<LoginState> implements ClearedOnLogout {
 
-  /** The name of the Login screen, used to switch to it. */
-  public static final String VIEW_NAME = "log in";
+  /** The name of the screen the Log-in form is on, used to switch to it. */
+  public static final String VIEW_NAME = ViewNames.LOGIN;
 
   /** The name of the property change event fired whenever the state changes. */
   public static final String STATE_PROPERTY = "state";
 
-  /** Notifies the listeners. */
-  private final PropertyChangeSupport support = new PropertyChangeSupport(this);
-
-  /** What the screen currently shows. */
-  private LoginState state = LoginState.EMPTY;
-
-  /**
-   * Returns what the screen currently shows.
-   *
-   * @return the current state; never null
-   */
-  public LoginState getState() {
-    return state;
+  /** Creates the view model with an empty form. */
+  public LoginViewModel() {
+    super(VIEW_NAME);
+    super.setState(LoginState.EMPTY);
   }
 
   /**
    * Replaces the state and notifies every listener with a {@value #STATE_PROPERTY} event.
    *
-   * @param newState what the screen should show
+   * @param newState what the form should show
    * @throws NullPointerException if {@code newState} is null
    */
+  @Override
   public void setState(LoginState newState) {
-    LoginState oldState = state;
-    state = Objects.requireNonNull(newState, "newState");
-    support.firePropertyChange(STATE_PROPERTY, oldState, newState);
-  }
-
-  /**
-   * Registers a listener, normally the Login screen, to hear about state changes.
-   *
-   * @param listener called with a {@value #STATE_PROPERTY} event after each change
-   */
-  public void addPropertyChangeListener(PropertyChangeListener listener) {
-    support.addPropertyChangeListener(listener);
+    super.setState(Objects.requireNonNull(newState, "newState"));
+    firePropertyChanged(STATE_PROPERTY);
   }
 
   /** Empties the form and forgets who was logged in. */

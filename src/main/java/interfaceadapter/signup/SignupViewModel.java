@@ -1,61 +1,44 @@
 package interfaceadapter.signup;
 
 import interfaceadapter.ClearedOnLogout;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+import interfaceadapter.ViewModel;
+import interfaceadapter.ViewNames;
 import java.util.Objects;
 
 /**
- * Holds the Sign-up screen's {@link SignupState} and tells the screen when it changes. The
+ * Holds the Sign-up form's {@link SignupState} and tells the screen when it changes. The
  * presenter sets the state; the screen listens and redraws.
  *
- * <p>When the app shell from SCRUM-23 adds a shared {@code ViewModel} base class, this class
- * should extend it instead of managing its own listeners. Switching to the Dashboard after a
- * successful sign-up also belongs to the app shell: it can listen for a state whose
- * {@code signedUpUsername} is set.
+ * <p>Unlike the base {@link ViewModel}, every {@link #setState} notifies the listeners, so a
+ * presenter can't forget to.
  */
-public class SignupViewModel implements ClearedOnLogout {
+public class SignupViewModel extends ViewModel<SignupState> implements ClearedOnLogout {
 
-  /** The name of the Sign-up screen, used to switch to it. */
-  public static final String VIEW_NAME = "sign up";
+  /**
+   * The name of the screen the Sign-up form is on, used to switch to it. Sign-up is a tab of
+   * the Login screen, so it's the same screen.
+   */
+  public static final String VIEW_NAME = ViewNames.LOGIN;
 
   /** The name of the property change event fired whenever the state changes. */
   public static final String STATE_PROPERTY = "state";
 
-  /** Notifies the listeners. */
-  private final PropertyChangeSupport support = new PropertyChangeSupport(this);
-
-  /** What the screen currently shows. */
-  private SignupState state = SignupState.EMPTY;
-
-  /**
-   * Returns what the screen currently shows.
-   *
-   * @return the current state; never null
-   */
-  public SignupState getState() {
-    return state;
+  /** Creates the view model with an empty form. */
+  public SignupViewModel() {
+    super(VIEW_NAME);
+    super.setState(SignupState.EMPTY);
   }
 
   /**
    * Replaces the state and notifies every listener with a {@value #STATE_PROPERTY} event.
    *
-   * @param newState what the screen should show
+   * @param newState what the form should show
    * @throws NullPointerException if {@code newState} is null
    */
+  @Override
   public void setState(SignupState newState) {
-    SignupState oldState = state;
-    state = Objects.requireNonNull(newState, "newState");
-    support.firePropertyChange(STATE_PROPERTY, oldState, newState);
-  }
-
-  /**
-   * Registers a listener, normally the Sign-up screen, to hear about state changes.
-   *
-   * @param listener called with a {@value #STATE_PROPERTY} event after each change
-   */
-  public void addPropertyChangeListener(PropertyChangeListener listener) {
-    support.addPropertyChangeListener(listener);
+    super.setState(Objects.requireNonNull(newState, "newState"));
+    firePropertyChanged(STATE_PROPERTY);
   }
 
   /** Empties the form and removes the welcome line of the user who signed up. */

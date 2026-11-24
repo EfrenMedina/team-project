@@ -1,6 +1,9 @@
 package interfaceadapter.signup;
 
 import entity.Money;
+import interfaceadapter.LoggedInViewModel;
+import interfaceadapter.ViewManagerModel;
+import interfaceadapter.ViewNames;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -10,27 +13,41 @@ import usecase.signup.SignupOutputBoundary;
 import usecase.signup.SignupOutputData;
 
 /**
- * Turns the sign-up use case's result into what the Sign-up screen shows: the error message
- * under the field it is about on failure, or the new username and their formatted starting
- * cash on success.
+ * Turns the sign-up use case's result into what the screens show: the error message under the
+ * field it is about on failure, or the Dashboard with the new user's name in the sidebar on
+ * success. The new user is already logged in by then.
  */
 public class SignupPresenter implements SignupOutputBoundary {
 
-  /** The Sign-up screen's state, which this presenter updates. */
+  /** The Sign-up form's state, which this presenter updates. */
   private final SignupViewModel signupViewModel;
+
+  /** Who is logged in, shown in the sidebar. */
+  private final LoggedInViewModel loggedInViewModel;
+
+  /** Which screen is showing. */
+  private final ViewManagerModel viewManagerModel;
 
   /**
    * Creates the presenter.
    *
-   * @param signupViewModel the Sign-up screen's view model
-   * @throws NullPointerException if {@code signupViewModel} is null
+   * @param signupViewModel the Sign-up form's view model
+   * @param loggedInViewModel holds who is logged in
+   * @param viewManagerModel switches screens
+   * @throws NullPointerException if any argument is null
    */
-  public SignupPresenter(SignupViewModel signupViewModel) {
+  public SignupPresenter(
+      SignupViewModel signupViewModel,
+      LoggedInViewModel loggedInViewModel,
+      ViewManagerModel viewManagerModel) {
     this.signupViewModel = Objects.requireNonNull(signupViewModel, "signupViewModel");
+    this.loggedInViewModel = Objects.requireNonNull(loggedInViewModel, "loggedInViewModel");
+    this.viewManagerModel = Objects.requireNonNull(viewManagerModel, "viewManagerModel");
   }
 
   /**
-   * Shows the new user and their starting cash, and clears any earlier error.
+   * Records the new user and their starting cash, clears any earlier error and shows the
+   * Dashboard.
    *
    * @param outputData the new user's details
    */
@@ -39,6 +56,9 @@ public class SignupPresenter implements SignupOutputBoundary {
     String username = outputData.username();
     signupViewModel.setState(
         new SignupState(username, null, null, username, format(outputData.startingCash())));
+    loggedInViewModel.setState(username);
+    viewManagerModel.setState(ViewNames.DASHBOARD);
+    viewManagerModel.firePropertyChanged();
   }
 
   /**
