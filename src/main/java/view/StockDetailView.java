@@ -16,6 +16,7 @@ import java.awt.GridLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -61,6 +62,9 @@ public class StockDetailView extends JPanel implements PropertyChangeListener {
 
   /** Shown while a request is running. */
   static final String LOADING_TEXT = "Loading…";
+
+  /** Shown when a request fails in a way the use case didn't report (Technical Design p. 15). */
+  static final String FAILED_TEXT = "Prices are unavailable right now.";
 
   final JLabel exchangeLabel = new JLabel(" ");
   final JLabel nameLabel = new JLabel(" ");
@@ -179,6 +183,11 @@ public class StockDetailView extends JPanel implements PropertyChangeListener {
   /**
    * Asks the controller for a stock on the executor's thread, and shows that it is loading.
    *
+   * <p>The use case reports missing data itself. Anything else it throws, such as a bug or a
+   * response a gateway couldn't read, would leave the screen on "Loading…" with every button
+   * off, so it is shown as {@value #FAILED_TEXT} and passed to the thread's uncaught exception
+   * handler, which prints it.
+   *
    * @param ticker the stock's ticker
    * @param range how far back the chart goes
    */
@@ -189,7 +198,16 @@ public class StockDetailView extends JPanel implements PropertyChangeListener {
     }
     statusLabel.setText(LOADING_TEXT);
     setButtonsEnabled(false);
-    useCaseExecutor.execute(() -> controller.execute(ticker, range));
+    useCaseExecutor.execute(() -> {
+      try {
+        controller.execute(ticker, range);
+      } catch (RuntimeException e) {
+        viewModel.setState(new ViewStockState(ticker == null ? "" : ticker, range, "", "", "",
+            "", true, List.of(), List.of(), FAILED_TEXT));
+        Thread thread = Thread.currentThread();
+        thread.getUncaughtExceptionHandler().uncaughtException(thread, e);
+      }
+    });
   }
 
   /**

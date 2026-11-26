@@ -165,6 +165,26 @@ class StockDetailViewTest {
   }
 
   @Test
+  void open_useCaseThrowsUnexpectedly_showsErrorInsteadOfLoading() throws Exception {
+    // Inputs: a use case that fails with something other than missing data
+    view.setViewStockController(new ViewStockController(input -> {
+      throw new IllegalStateException("Could not read the response");
+    }));
+
+    // Action
+    view.open("AAPL");
+    flushEventQueue();
+
+    // Assertion: loading cleared, the error shown, and a range button can retry
+    assertEquals(" ", view.statusLabel.getText());
+    assertEquals(StockDetailView.FAILED_TEXT, view.errorLabel.getText());
+    assertEquals("AAPL", view.exchangeLabel.getText());
+    assertEquals("AAPL", viewModel.getState().ticker());
+    assertTrue(view.rangeButtons.get(ChartRange.ONE_YEAR).isEnabled());
+    assertFalse(view.buyButton.isEnabled());
+  }
+
+  @Test
   void newView_beforeAnyStock_hasTradeButtonsDisabled() {
     // Action / Assertion
     assertFalse(view.buyButton.isEnabled());
