@@ -15,7 +15,7 @@ Built in Java 17 with Swing (FlatLaf), SQLite and Maven, following Clean Archite
 | US-01 | Sign up | Efren Medina Arias | To do |
 | US-02 | Log in and log out | Efren Medina Arias | To do |
 | US-03 | Search stocks | Lifeable | To do |
-| US-04 | Stock details and chart | Andrei Mazin | To do |
+| US-04 | Stock details and chart | Andrei Mazin | In review |
 | US-05 | Buy shares, with no double-buys | Efren Medina Arias | To do |
 | US-06 | Sell shares | Abdulhadi Alnowailaty | To do |
 | US-07 | Portfolio and profit/loss | Abdulhadi Alnowailaty | To do |
@@ -224,4 +224,7 @@ Every screen is sketched in [`docs/wireframes/`](docs/wireframes/), with a table
 
 ## Screenshots
 
-_Coming once the first screens are built._
+**Stock detail (US-04)**, running on `FakeStockDataGateway`'s recorded AAPL data. It isn't in the
+app window yet: the sidebar and navigation come with the app shell (SCRUM-23).
+
+![Stock detail screen showing Apple's price, 1M chart and key stats](docs/screenshots/04-stock-detail.png)
