@@ -192,6 +192,30 @@ class StockDetailViewTest {
   }
 
   @Test
+  void newView_beforeAnyStock_hasRangeButtonsDisabled() {
+    // Inputs
+    view.setViewStockController(new ViewStockController(requests::add));
+
+    // Action: a disabled button ignores clicks
+    view.rangeButtons.get(ChartRange.SIX_MONTHS).doClick();
+
+    // Assertion
+    view.rangeButtons.values().forEach(button -> assertFalse(button.isEnabled()));
+    assertTrue(requests.isEmpty());
+  }
+
+  @Test
+  void open_blankTicker_keepsRangeButtonsDisabled() throws Exception {
+    // Action
+    view.open("  ");
+    flushEventQueue();
+
+    // Assertion: the use case asks for a ticker, and no range can be redrawn yet
+    assertEquals("Enter a ticker.", view.errorLabel.getText());
+    view.rangeButtons.values().forEach(button -> assertFalse(button.isEnabled()));
+  }
+
+  @Test
   void open_noControllerYet_doesNothing() {
     // Inputs
     view.setViewStockController(null);

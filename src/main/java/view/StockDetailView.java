@@ -233,7 +233,8 @@ public class StockDetailView extends JPanel implements PropertyChangeListener {
     boolean loaded = state.error() == null && !state.price().isEmpty();
     buyButton.setText(loaded ? "Buy " + state.ticker() : "Buy");
     sellButton.setText(loaded ? "Sell " + state.ticker() : "Sell");
-    setButtonsEnabled(true);
+    // A range needs a ticker to redraw, so the range buttons wait for the first stock.
+    setButtonsEnabled(!state.ticker().isBlank());
     buyButton.setEnabled(loaded);
     sellButton.setEnabled(loaded);
     limitButton.setEnabled(loaded);
