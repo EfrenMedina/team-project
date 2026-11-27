@@ -1,14 +1,34 @@
 package app;
 
+import dataaccess.InMemorySessionHolder;
+import dataaccess.InMemoryUserDataAccessObject;
+import dataaccess.Pbkdf2PasswordHasher;
+import entity.UuidIdGenerator;
+import interfaceadapter.ClearedOnLogout;
+import interfaceadapter.LoggedInViewModel;
 import interfaceadapter.ViewManagerModel;
 import interfaceadapter.ViewNames;
+import interfaceadapter.login.LoginController;
+import interfaceadapter.login.LoginPresenter;
+import interfaceadapter.login.LoginViewModel;
+import interfaceadapter.logout.LogoutController;
+import interfaceadapter.logout.LogoutPresenter;
 import interfaceadapter.navigation.NavigationController;
+import interfaceadapter.signup.SignupController;
+import interfaceadapter.signup.SignupPresenter;
+import interfaceadapter.signup.SignupViewModel;
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.time.Clock;
 import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import usecase.login.AfterLoginStep;
+import usecase.login.LoginInteractor;
+import usecase.logout.LogoutInteractor;
+import usecase.shared.PasswordHasher;
+import usecase.signup.SignupInteractor;
 import view.DashboardView;
 import view.LoginView;
 import view.NavLink;
@@ -55,6 +75,25 @@ public class AppBuilder {
   private final NavigationController navigation = new NavigationController(viewManagerModel);
   private final AppConfig config;
 
+  // ---- Shared by sign-up, login and logout (US-01, US-02) ----
+
+  /** Who is logged in, shown in every sidebar. */
+  private final LoggedInViewModel loggedInViewModel = new LoggedInViewModel();
+  private final LoginViewModel loginViewModel = new LoginViewModel();
+  private final SignupViewModel signupViewModel = new SignupViewModel();
+
+  /**
+   * Users, accounts and opening deposits. In memory in both data modes until SCRUM-36 adds the
+   * SQLite version, so accounts don't survive closing the app yet.
+   */
+  private final InMemoryUserDataAccessObject userDataAccess = new InMemoryUserDataAccessObject();
+  private final InMemorySessionHolder sessionHolder = new InMemorySessionHolder();
+  private final PasswordHasher passwordHasher = new Pbkdf2PasswordHasher();
+  private LoginView loginView;
+
+  /** Set by {@link #addLogoutUseCase}; until then "Log out" does nothing. */
+  private LogoutController logoutController;
+
   /**
    * Starts an empty app.
    *
@@ -71,9 +110,72 @@ public class AppBuilder {
 
   /** Adds the login and sign-up screen. */
   public AppBuilder addLoginView() {
-    LoginView view = new LoginView(navigation);
-    cardPanel.add(view, ViewNames.LOGIN);
+    loginView = new LoginView(loginViewModel, signupViewModel);
+    cardPanel.add(loginView, ViewNames.LOGIN);
     return this;
+  }
+
+  /**
+   * Connects the Sign-up form to the sign-up use case. A new user is logged in and taken to
+   * the Dashboard.
+   *
+   * @return this builder
+   * @throws IllegalStateException if {@link #addLoginView} hasn't been called
+   */
+  public AppBuilder addSignupUseCase() {
+    SignupPresenter presenter =
+        new SignupPresenter(signupViewModel, loggedInViewModel, viewManagerModel);
+    SignupInteractor interactor = new SignupInteractor(
+        userDataAccess, presenter, passwordHasher, new UuidIdGenerator(), Clock.systemUTC(),
+        sessionHolder);
+    requireLoginView().setSignupController(new SignupController(interactor));
+    return this;
+  }
+
+  /**
+   * Connects the Log-in form to the login use case. A user who logs in is taken to the
+   * Dashboard.
+   *
+   * @return this builder
+   * @throws IllegalStateException if {@link #addLoginView} hasn't been called
+   */
+  public AppBuilder addLoginUseCase() {
+    LoginPresenter presenter =
+        new LoginPresenter(loginViewModel, loggedInViewModel, viewManagerModel);
+    // SCRUM-41 replaces NONE with the open-order check.
+    LoginInteractor interactor = new LoginInteractor(
+        userDataAccess, presenter, passwordHasher, sessionHolder, AfterLoginStep.NONE);
+    requireLoginView().setLoginController(new LoginController(interactor));
+    return this;
+  }
+
+  /**
+   * Connects every sidebar's "Log out" to the logout use case, which clears the user's data
+   * from the screens and goes back to Login.
+   *
+   * @return this builder
+   */
+  public AppBuilder addLogoutUseCase() {
+    // Add each new view model that holds user data to this list.
+    List<ClearedOnLogout> screensToClear =
+        List.of(loggedInViewModel, loginViewModel, signupViewModel);
+    LogoutPresenter presenter = new LogoutPresenter(screensToClear, viewManagerModel);
+    logoutController = new LogoutController(new LogoutInteractor(sessionHolder, presenter));
+    return this;
+  }
+
+  private LoginView requireLoginView() {
+    if (loginView == null) {
+      throw new IllegalStateException("Call addLoginView() before adding its use cases");
+    }
+    return loginView;
+  }
+
+  /** Runs the logout use case, if it has been added. Used by every sidebar's "Log out". */
+  private void logOut() {
+    if (logoutController != null) {
+      logoutController.execute();
+    }
   }
 
   // ---- 02 Dashboard + watchlist (US-09) ----
@@ -253,7 +355,9 @@ public class AppBuilder {
    * @return this builder
    */
   private AppBuilder addScreen(String viewName, SidebarItem selected, JComponent content) {
-    cardPanel.add(new ShellView(viewName, selected, navigation, content), viewName);
+    cardPanel.add(
+        new ShellView(viewName, selected, navigation, loggedInViewModel, this::logOut, content),
+        viewName);
     return this;
   }
 
